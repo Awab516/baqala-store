@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>بقالة ستور</title>
 
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2ecc71">
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
@@ -21,16 +31,15 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const productsDiv = document.getElementById("products");
-
 async function loadProducts() {
+  const productsDiv = document.getElementById("products");
   const querySnapshot = await getDocs(collection(db, "products"));
   productsDiv.innerHTML = "";
   querySnapshot.forEach((doc) => {
     const data = doc.data();
     productsDiv.innerHTML += `
-      <div style="border:1px solid #ddd;padding:10px;margin:10px;border-radius:10px;">
-        <img src="${data.image}" width="100%">
+      <div style="border:1px solid #ddd;padding:10px;margin:10px;border-radius:10px;background:white;">
+        <img src="${data.image || ''}" width="100%">
         <h3>${data.name}</h3>
         <p>${data.price} جنيه</p>
         <button onclick="orderProduct('${data.name}','${data.price}')">اطلب الآن</button>
@@ -43,6 +52,11 @@ window.orderProduct = async function(name, price) {
   const customer = prompt("اكتب اسمك:");
   const phone = prompt("اكتب رقمك:");
   const address = prompt("اكتب موقعك:");
+
+  if(!customer || !phone){
+    alert("أدخل البيانات كاملة");
+    return;
+  }
 
   await addDoc(collection(db, "orders"), {
     name,
@@ -60,9 +74,24 @@ loadProducts();
 </script>
 
 <style>
-body {font-family: Arial; direction: rtl; text-align:center; background:#f5f5f5;}
-h1 {background:#2ecc71;color:white;padding:15px;}
-button {background:#2ecc71;color:white;border:none;padding:10px;border-radius:8px;}
+body {
+  font-family: Arial;
+  direction: rtl;
+  text-align:center;
+  background:#f5f5f5;
+}
+h1 {
+  background:#2ecc71;
+  color:white;
+  padding:15px;
+}
+button {
+  background:#2ecc71;
+  color:white;
+  border:none;
+  padding:10px;
+  border-radius:8px;
+}
 </style>
 
 </head>
