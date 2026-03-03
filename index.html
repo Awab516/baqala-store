@@ -6,81 +6,69 @@
 <title>بقالة ستور</title>
 
 <style>
-body{font-family:Arial;direction:rtl;background:#f5f5f5;margin:0}
+body{font-family:Arial;direction:rtl;background:#f2f2f2;margin:0}
 h1{background:#2ecc71;color:white;padding:15px;text-align:center;margin:0}
-.card{background:white;padding:12px;margin:10px;border-radius:12px}
-button{background:#2ecc71;color:white;border:none;padding:8px;border-radius:8px;margin-top:6px}
-#cartIcon{position:fixed;bottom:20px;left:20px;background:#e74c3c;padding:14px;border-radius:50%;color:white}
+.container{padding:10px}
+.card{background:white;padding:15px;margin-bottom:10px;border-radius:12px}
+button{background:#2ecc71;color:white;border:none;padding:8px 12px;border-radius:8px;margin-top:6px}
+#cartIcon{position:fixed;bottom:20px;left:20px;background:#e74c3c;padding:15px;border-radius:50%;color:white}
 #cartBox{display:none;position:fixed;bottom:80px;left:10px;background:white;width:90%;max-height:60%;overflow:auto;padding:15px;border-radius:12px}
 </style>
 
+</head>
+<body>
+
+<h1>بقالة ستور</h1>
+
+<div class="container" id="products"></div>
+
+<div id="cartIcon" onclick="toggleCart()">🛒 <span id="count">0</span></div>
+
+<div id="cartBox">
+<h3>السلة</h3>
+<div id="cartItems"></div>
+<p>الإجمالي: <span id="total">0</span> جنيه</p>
+<button onclick="sendOrder()">تأكيد الطلب</button>
+</div>
+
 <script>
+const products = [
+  {name:"أرز", price:67},
+  {name:"سكر", price:1000},
+  {name:"زيت", price:850},
+  {name:"مكرونة", price:300}
+];
+
 let cart = [];
-let db = null;
 
-/* تحميل سريع من التخزين المحلي */
-function loadCachedProducts(){
-  const cached = localStorage.getItem("products");
-  if(cached){
-    renderProducts(JSON.parse(cached));
-  }
-}
-
-/* عرض المنتجات */
-function renderProducts(products){
+function render(){
   const container = document.getElementById("products");
-  container.innerHTML = "";
-  products.forEach(p=>{
+  products.forEach((p,i)=>{
     container.innerHTML += `
       <div class="card">
         <h3>${p.name}</h3>
         <p>${p.price} جنيه</p>
-        <button onclick="addToCart('${p.name}', ${p.price})">أضف للسلة</button>
+        <button onclick="add(${i})">أضف للسلة</button>
       </div>
     `;
   });
 }
 
-/* تحميل من Firebase في الخلفية */
-function loadFromFirebase(){
-  const script1 = document.createElement("script");
-  script1.src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js";
-  document.head.appendChild(script1);
-
-  const script2 = document.createElement("script");
-  script2.src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js";
-  document.head.appendChild(script2);
-
-  script2.onload = function(){
-    const firebaseConfig = {
-      apiKey: "AIzaSyANFomLC3CBPdB_3FS5ylbw1XHqHqFai3c",
-      authDomain: "awab-store-f4428.firebaseapp.com",
-      projectId: "awab-store-f4428"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    db = firebase.firestore();
-
-    db.collection("products").get().then(snapshot=>{
-      let products=[];
-      snapshot.forEach(doc=>products.push(doc.data()));
-      localStorage.setItem("products", JSON.stringify(products));
-      renderProducts(products);
-    });
-  }
-}
-
-/* سلة */
-function addToCart(name, price){
-  cart.push({name, price});
+function add(i){
+  cart.push(products[i]);
   updateCart();
 }
 
 function updateCart(){
+  const box = document.getElementById("cartItems");
+  box.innerHTML="";
   let total=0;
-  cart.forEach(i=> total+=i.price);
+  cart.forEach(item=>{
+    total+=item.price;
+    box.innerHTML += `<p>${item.name} - ${item.price}</p>`;
+  });
   document.getElementById("total").innerText=total;
-  document.getElementById("cartCount").innerText=cart.length;
+  document.getElementById("count").innerText=cart.length;
 }
 
 function toggleCart(){
@@ -88,50 +76,14 @@ function toggleCart(){
   box.style.display = box.style.display==="none"?"block":"none";
 }
 
-/* إرسال الطلب */
-function checkout(){
-  if(!db){
-    alert("جاري التحميل...");
-    return;
-  }
-
-  if(cart.length===0){
-    alert("السلة فارغة");
-    return;
-  }
-
-  db.collection("orders").add({
-    items:cart,
-    date:new Date()
-  });
-
-  alert("تم إرسال الطلب");
+function sendOrder(){
+  alert("الطلب اتسجل (الإدارة نربطها بعدين)");
   cart=[];
   updateCart();
 }
 
-/* تشغيل */
-loadCachedProducts();
-loadFromFirebase();
+render();
 </script>
-
-</head>
-
-<body>
-
-<h1>بقالة ستور</h1>
-
-<div id="products">جاري التحميل...</div>
-
-<div id="cartIcon" onclick="toggleCart()">
-🛒 <span id="cartCount">0</span>
-</div>
-
-<div id="cartBox">
-<h3>السلة</h3>
-<p>الإجمالي: <span id="total">0</span> جنيه</p>
-<button onclick="checkout()">تأكيد الطلب</button>
-</div>
 
 </body>
 </html>
