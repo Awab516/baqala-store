@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بقالة ستور</title>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyANFomLC3CBPdB_3FS5ylbw1XHqHqFai3c",
+  authDomain: "awab-store-f4428.firebaseapp.com",
+  projectId: "awab-store-f4428",
+  storageBucket: "awab-store-f4428.firebasestorage.app",
+  messagingSenderId: "385135199201",
+  appId: "1:385135199201:web:10c3ec0ae39f5fb0a3c8a0"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const productsDiv = document.getElementById("products");
+
+async function loadProducts() {
+  const querySnapshot = await getDocs(collection(db, "products"));
+  productsDiv.innerHTML = "";
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
+    productsDiv.innerHTML += `
+      <div style="border:1px solid #ddd;padding:10px;margin:10px;border-radius:10px;">
+        <img src="${data.image}" width="100%">
+        <h3>${data.name}</h3>
+        <p>${data.price} جنيه</p>
+        <button onclick="orderProduct('${data.name}','${data.price}')">اطلب الآن</button>
+      </div>
+    `;
+  });
+}
+
+window.orderProduct = async function(name, price) {
+  const customer = prompt("اكتب اسمك:");
+  const phone = prompt("اكتب رقمك:");
+  const address = prompt("اكتب موقعك:");
+
+  await addDoc(collection(db, "orders"), {
+    name,
+    price,
+    customer,
+    phone,
+    address,
+    date: new Date()
+  });
+
+  alert("تم إرسال الطلب ✅");
+}
+
+loadProducts();
+</script>
+
+<style>
+body {font-family: Arial; direction: rtl; text-align:center; background:#f5f5f5;}
+h1 {background:#2ecc71;color:white;padding:15px;}
+button {background:#2ecc71;color:white;border:none;padding:10px;border-radius:8px;}
+</style>
+
+</head>
+<body>
+
+<h1>بقالة ستور</h1>
+<div id="products"></div>
+
+</body>
+</html>
