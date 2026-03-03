@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة الإدارة</title>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyANFomLC3CBPdB_3FS5ylbw1XHqHqFai3c",
+  authDomain: "awab-store-f4428.firebaseapp.com",
+  projectId: "awab-store-f4428",
+  storageBucket: "awab-store-f4428.firebasestorage.app",
+  messagingSenderId: "385135199201",
+  appId: "1:385135199201:web:10c3ec0ae39f5fb0a3c8a0"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.addProduct = async function() {
+  const name = document.getElementById("name").value;
+  const price = document.getElementById("price").value;
+  const image = document.getElementById("image").value;
+
+  await addDoc(collection(db, "products"), {
+    name,
+    price,
+    image
+  });
+
+  alert("تم إضافة المنتج ✅");
+  loadProducts();
+}
+
+async function loadProducts() {
+  const querySnapshot = await getDocs(collection(db, "products"));
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  querySnapshot.forEach((documento) => {
+    const data = documento.data();
+    list.innerHTML += `
+      <div style="border:1px solid #ddd;padding:10px;margin:10px;border-radius:10px;">
+        <h3>${data.name}</h3>
+        <p>${data.price} جنيه</p>
+        <button onclick="deleteProduct('${documento.id}')">حذف</button>
+      </div>
+    `;
+  });
+}
+
+window.deleteProduct = async function(id) {
+  await deleteDoc(doc(db, "products", id));
+  loadProducts();
+}
+
+loadProducts();
+</script>
+
+<style>
+body {font-family: Arial; direction: rtl; text-align:center; background:#f5f5f5;}
+h1 {background:#e74c3c;color:white;padding:15px;}
+input {padding:8px;margin:5px;width:80%;}
+button {background:#e74c3c;color:white;border:none;padding:10px;border-radius:8px;}
+</style>
+
+</head>
+<body>
+
+<h1>لوحة الإدارة</h1>
+
+<input id="name" placeholder="اسم المنتج">
+<input id="price" placeholder="السعر">
+<input id="image" placeholder="رابط الصورة">
+<br>
+<button onclick="addProduct()">إضافة المنتج</button>
+
+<h2>المنتجات الحالية</h2>
+<div id="list"></div>
+
+</body>
+</html>
