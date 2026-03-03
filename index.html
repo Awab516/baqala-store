@@ -5,40 +5,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>بقالة ستور</title>
 
-<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2ecc71">
 
+<style>
+body{font-family:Arial;direction:rtl;background:#f5f5f5;margin:0}
+h1{background:#2ecc71;color:white;padding:15px;text-align:center;margin:0}
+.card{background:white;padding:12px;margin:10px;border-radius:12px;box-shadow:0 2px 5px rgba(0,0,0,0.1)}
+button{background:#2ecc71;color:white;border:none;padding:8px 12px;border-radius:8px;margin-top:6px}
+#cartIcon{position:fixed;bottom:20px;left:20px;background:#e74c3c;padding:14px;border-radius:50%;color:white;font-size:18px}
+#cartBox{display:none;position:fixed;bottom:80px;left:10px;background:white;width:90%;max-height:60%;overflow:auto;padding:15px;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,0.2)}
+</style>
+
+<!-- Firebase خفيف -->
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
 <script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
-}
-</script>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-
 const firebaseConfig = {
   apiKey: "AIzaSyANFomLC3CBPdB_3FS5ylbw1XHqHqFai3c",
   authDomain: "awab-store-f4428.firebaseapp.com",
   projectId: "awab-store-f4428"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
 let cart = [];
 
-async function loadProducts() {
-  const productsDiv = document.getElementById("products");
-  const querySnapshot = await getDocs(collection(db, "products"));
-  productsDiv.innerHTML = "";
+/* تحميل المنتجات */
+async function loadProducts(){
+  const container = document.getElementById("products");
+  container.innerHTML = "جاري التحميل...";
+  const snapshot = await db.collection("products").get();
+  container.innerHTML = "";
 
-  querySnapshot.forEach((doc) => {
+  snapshot.forEach(doc=>{
     const data = doc.data();
-    productsDiv.innerHTML += `
+    container.innerHTML += `
       <div class="card">
-        <img src="${data.image || ''}" width="100%">
         <h3>${data.name}</h3>
         <p>${data.price} جنيه</p>
         <button onclick="addToCart('${data.name}', ${data.price})">أضف للسلة</button>
@@ -47,11 +51,13 @@ async function loadProducts() {
   });
 }
 
-window.addToCart = function(name, price){
+/* إضافة للسلة */
+function addToCart(name, price){
   cart.push({name, price});
   updateCart();
 }
 
+/* تحديث السلة */
 function updateCart(){
   const cartDiv = document.getElementById("cartItems");
   cartDiv.innerHTML = "";
@@ -71,43 +77,37 @@ function updateCart(){
   document.getElementById("cartCount").innerText = cart.length;
 }
 
-window.removeItem = function(index){
+/* حذف عنصر */
+function removeItem(index){
   cart.splice(index,1);
   updateCart();
 }
 
-window.toggleCart = function(){
+/* فتح السلة */
+function toggleCart(){
   const box = document.getElementById("cartBox");
   box.style.display = box.style.display === "none" ? "block" : "none";
 }
 
-window.checkout = async function(){
+/* تأكيد الطلب */
+async function checkout(){
   if(cart.length === 0){
     alert("السلة فارغة");
     return;
   }
 
-  await addDoc(collection(db,"orders"),{
+  await db.collection("orders").add({
     items: cart,
     date: new Date()
   });
 
-  alert("تم إرسال الطلب");
+  alert("تم إرسال الطلب ✅");
   cart = [];
   updateCart();
 }
 
 loadProducts();
 </script>
-
-<style>
-body{font-family:Arial;direction:rtl;background:#f5f5f5;margin:0}
-h1{background:#2ecc71;color:white;padding:15px;text-align:center}
-.card{background:white;padding:10px;margin:10px;border-radius:10px}
-button{background:#2ecc71;color:white;border:none;padding:8px;border-radius:8px;margin:5px}
-#cartIcon{position:fixed;bottom:20px;left:20px;background:#e74c3c;padding:15px;border-radius:50%;color:white}
-#cartBox{display:none;position:fixed;bottom:80px;left:10px;background:white;width:90%;max-height:60%;overflow:auto;padding:15px;border-radius:10px}
-</style>
 </head>
 
 <body>
