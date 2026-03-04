@@ -22,11 +22,11 @@ padding:18px;
 font-size:24px;
 }
 
-.login{
+.register{
 padding:20px;
 }
 
-.login input{
+.register input{
 width:100%;
 padding:12px;
 margin-bottom:10px;
@@ -34,30 +34,13 @@ border-radius:8px;
 border:1px solid #ccc;
 }
 
-.login button{
+.register button{
 background:#2ecc71;
-border:none;
 color:white;
+border:none;
 padding:12px;
 width:100%;
 border-radius:8px;
-}
-
-.topbar{
-display:flex;
-gap:10px;
-padding:10px;
-}
-
-.search{
-flex:1;
-}
-
-.search input{
-width:100%;
-padding:10px;
-border-radius:8px;
-border:1px solid #ccc;
 }
 
 .products{
@@ -72,7 +55,6 @@ background:white;
 padding:10px;
 border-radius:12px;
 text-align:center;
-box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 
 .product img{
@@ -91,8 +73,8 @@ margin-top:6px;
 
 .qty button{
 background:#3498db;
-border:none;
 color:white;
+border:none;
 padding:6px 12px;
 border-radius:6px;
 }
@@ -110,35 +92,22 @@ border-radius:10px;
 font-size:18px;
 }
 
-.orderPage{
-display:none;
-padding:20px;
-}
-
-.orderPage input{
-width:100%;
-padding:12px;
-margin-bottom:10px;
-border-radius:8px;
-border:1px solid #ccc;
-}
-
 </style>
 </head>
 
 <body>
 
-<div id="loginPage" class="login">
+<div id="registerPage" class="register">
 
-<h2>تسجيل الدخول</h2>
+<h3>أدخل بياناتك</h3>
 
 <input id="userName" placeholder="اسمك">
 
-<input id="userPhone" placeholder="رقمك أو ايميلك">
+<input id="userPhone" placeholder="رقمك">
 
-<input id="userPass" placeholder="كلمة السر">
+<input id="userEmail" placeholder="ايميلك (اختياري)">
 
-<button onclick="saveUser()">دخول</button>
+<button onclick="saveUser()">دخول المتجر</button>
 
 </div>
 
@@ -147,14 +116,6 @@ border:1px solid #ccc;
 
 <div class="header">
 بقالة ستور
-</div>
-
-<div class="topbar">
-
-<div class="search">
-<input id="search" placeholder="ابحث عن منتج..." onkeyup="searchProduct()">
-</div>
-
 </div>
 
 <div class="products" id="products"></div>
@@ -166,34 +127,13 @@ border:1px solid #ccc;
 </div>
 
 
-<div id="orderPage" class="orderPage">
-
-<button onclick="goBack()">رجوع</button>
-
-<h3>بيانات الطلب</h3>
-
-<input id="name">
-<input id="phone">
-<input id="location" placeholder="موقعك">
-
-<h3>الطلبات</h3>
-
-<div id="orderItems"></div>
-
-<h3>الإجمالي: <span id="total"></span> جنيه</h3>
-
-<button onclick="sendOrder()">تأكيد الطلب</button>
-
-</div>
-
-
 <script>
 
 let savedUser=localStorage.getItem("user")
 
 if(savedUser){
 
-document.getElementById("loginPage").style.display="none"
+document.getElementById("registerPage").style.display="none"
 document.getElementById("shopPage").style.display="block"
 
 }
@@ -202,12 +142,17 @@ function saveUser(){
 
 let name=document.getElementById("userName").value
 let phone=document.getElementById("userPhone").value
-let pass=document.getElementById("userPass").value
+let email=document.getElementById("userEmail").value
+
+if(!name || !phone){
+alert("اكتب الاسم والرقم")
+return
+}
 
 let user={
 name:name,
 phone:phone,
-pass:pass
+email:email
 }
 
 localStorage.setItem("user",JSON.stringify(user))
@@ -308,67 +253,9 @@ if(el) el.innerText=q
 
 function goOrder(){
 
-document.getElementById("shopPage").style.display="none"
-document.getElementById("orderPage").style.display="block"
+let user=JSON.parse(localStorage.getItem("user"))
 
-let html=""
-let total=0
-
-for(let i in cart){
-
-let p=cart[i]
-
-html+=`<p>${p.name} × ${p.qty}</p>`
-
-total+=p.price*p.qty
-
-}
-
-document.getElementById("orderItems").innerHTML=html
-document.getElementById("total").innerText=total
-
-}
-
-function goBack(){
-
-document.getElementById("shopPage").style.display="block"
-document.getElementById("orderPage").style.display="none"
-
-}
-
-function sendOrder(){
-
-alert("تم إرسال الطلب")
-
-}
-
-function searchProduct(){
-
-let text=document.getElementById("search").value
-
-let filtered=products.filter(p=>p.name.includes(text))
-
-let html=""
-
-filtered.forEach((p)=>{
-
-html+=`
-
-<div class="product">
-
-<img src="${p.img}">
-
-<h4>${p.name}</h4>
-
-<p>${p.price} جنيه</p>
-
-</div>
-
-`
-
-})
-
-document.getElementById("products").innerHTML=html
+alert("الطلب باسم: "+user.name)
 
 }
 
