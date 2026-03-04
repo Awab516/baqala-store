@@ -3,142 +3,144 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>لوحة الإدارة</title>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  deleteDoc,
-  doc,
-  onSnapshot
-} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyANFomLC3CBPdB_3FS5ylbw1XHqHqFai3c",
-  authDomain: "awab-store-f4428.firebaseapp.com",
-  projectId: "awab-store-f4428",
-  storageBucket: "awab-store-f4428.firebasestorage.app",
-  messagingSenderId: "385135199201",
-  appId: "1:385135199201:web:10c3ec0ae39f5fb0a3c8a0"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-/* ====== إضافة منتج ====== */
-window.addProduct = async function() {
-  const name = document.getElementById("name").value.trim();
-  const price = document.getElementById("price").value.trim();
-  const image = document.getElementById("image").value.trim();
-
-  if(!name || !price){
-    alert("أدخل اسم وسعر المنتج");
-    return;
-  }
-
-  await addDoc(collection(db, "products"), {
-    name,
-    price,
-    image
-  });
-
-  alert("تم إضافة المنتج ✅");
-  document.getElementById("name").value="";
-  document.getElementById("price").value="";
-  document.getElementById("image").value="";
-};
-
-/* ====== عرض المنتجات ====== */
-async function loadProducts() {
-  const querySnapshot = await getDocs(collection(db, "products"));
-  const list = document.getElementById("productList");
-  list.innerHTML = "";
-
-  querySnapshot.forEach((documento) => {
-    const data = documento.data();
-    list.innerHTML += `
-      <div class="card">
-        <strong>${data.name}</strong><br>
-        السعر: ${data.price} جنيه<br>
-        <button onclick="deleteProduct('${documento.id}')">حذف</button>
-      </div>
-    `;
-  });
-}
-
-window.deleteProduct = async function(id) {
-  await deleteDoc(doc(db, "products", id));
-  loadProducts();
-};
-
-/* ====== عرض الطلبات مباشر ====== */
-function loadOrders(){
-  const orderList = document.getElementById("orderList");
-
-  onSnapshot(collection(db,"orders"), (snapshot)=>{
-    orderList.innerHTML = "";
-
-    snapshot.forEach((docu)=>{
-      const data = docu.data();
-      orderList.innerHTML += `
-        <div class="orderCard">
-          <strong>المنتج:</strong> ${data.name}<br>
-          <strong>السعر:</strong> ${data.price} جنيه<br>
-          <strong>الزبون:</strong> ${data.customer}<br>
-          <strong>الرقم:</strong> ${data.phone}<br>
-          <strong>الموقع:</strong> ${data.address}<br>
-          <button onclick="deleteOrder('${docu.id}')">تم التنفيذ</button>
-        </div>
-      `;
-    });
-
-  });
-}
-
-window.deleteOrder = async function(id){
-  await deleteDoc(doc(db,"orders",id));
-};
-
-loadProducts();
-loadOrders();
-</script>
+<title>إدارة الطلبات</title>
 
 <style>
-body {font-family: Arial; direction: rtl; background:#f5f5f5; text-align:center;}
-h1 {background:#e74c3c;color:white;padding:15px;}
-input {padding:8px;margin:5px;width:80%;}
-button {background:#e74c3c;color:white;border:none;padding:8px;border-radius:8px;margin-top:5px;}
-.card, .orderCard {
-  border:1px solid #ddd;
-  padding:10px;
-  margin:10px;
-  border-radius:10px;
-  background:white;
-}
-h2 {margin-top:30px;}
-</style>
 
+body{
+font-family:Arial;
+background:#f2f2f2;
+margin:0;
+direction:rtl;
+}
+
+.header{
+background:#27ae60;
+color:white;
+padding:15px;
+text-align:center;
+font-size:20px;
+}
+
+.order{
+background:white;
+margin:10px;
+padding:15px;
+border-radius:10px;
+}
+
+button{
+padding:10px;
+border:none;
+border-radius:6px;
+margin-top:5px;
+cursor:pointer;
+}
+
+.map{
+background:#3498db;
+color:white;
+}
+
+.delete{
+background:#e74c3c;
+color:white;
+}
+
+</style>
 </head>
+
 <body>
 
-<h1>لوحة الإدارة</h1>
+<div class="header">
+لوحة إدارة الطلبات
+</div>
 
-<h2>إضافة منتج</h2>
-<input id="name" placeholder="اسم المنتج">
-<input id="price" placeholder="السعر">
-<input id="image" placeholder="رابط الصورة">
-<br>
-<button onclick="addProduct()">إضافة المنتج</button>
+<div id="orders"></div>
 
-<h2>المنتجات الحالية</h2>
-<div id="productList"></div>
+<script>
 
-<h2>الطلبات الجديدة</h2>
-<div id="orderList"></div>
+let orders=JSON.parse(localStorage.getItem("orders")||"[]")
+
+function showOrders(){
+
+let html=""
+
+if(orders.length==0){
+html="<p style='padding:20px'>لا يوجد طلبات</p>"
+}
+
+orders.forEach((o,i)=>{
+
+let items=""
+
+for(let k in o.cart){
+
+if(o.cart[k].qty>0){
+
+items+=o.cart[k].name+" × "+o.cart[k].qty+"<br>"
+
+}
+
+}
+
+html+=`
+
+<div class="order">
+
+<b>الاسم:</b> ${o.name}<br>
+<b>الرقم:</b> ${o.phone}<br>
+
+<hr>
+
+<b>الطلبات:</b><br>
+${items}
+
+<hr>
+
+<b>التوصيل:</b> ${o.delivery} جنيه<br>
+<b>الدفع:</b> ${o.payment}<br>
+<b>الوقت:</b> ${o.time}
+
+<br><br>
+
+<button class="map" onclick="openMap('${o.location}')">
+فتح الموقع
+</button>
+
+<button class="delete" onclick="deleteOrder(${i})">
+حذف الطلب
+</button>
+
+</div>
+
+`
+
+})
+
+document.getElementById("orders").innerHTML=html
+
+}
+
+function openMap(link){
+
+window.open(link)
+
+}
+
+function deleteOrder(i){
+
+orders.splice(i,1)
+
+localStorage.setItem("orders",JSON.stringify(orders))
+
+showOrders()
+
+}
+
+showOrders()
+
+</script>
 
 </body>
 </html>
