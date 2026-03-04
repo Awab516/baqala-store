@@ -1,54 +1,143 @@
-<script type="module">
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بقالة ستور</title>
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+<style>
 
-const firebaseConfig = {
-apiKey: "AIzaSyANFomLC3CBPdB_3FS5ylbw1XHqHqFai3c",
-authDomain: "awab-store-f4428.firebaseapp.com",
-projectId: "awab-store-f4428",
-storageBucket: "awab-store-f4428.firebasestorage.app",
-messagingSenderId: "385135199201",
-appId: "1:385135199201:web:10c3ec0ae39f5fb0a3c8a0"
-};
+body{
+font-family:Arial;
+margin:0;
+background:#f2f2f2;
+direction:rtl;
+}
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+.header{
+background:#27ae60;
+color:white;
+padding:15px;
+text-align:center;
+font-size:22px;
+}
 
-window.sendOrder = async function(){
+.products{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:10px;
+padding:10px;
+}
 
-let name = document.getElementById("name").value;
-let phone = document.getElementById("phone").value;
-let location = localStorage.getItem("location");
-let payment = document.getElementById("payment").value;
+.product{
+background:white;
+padding:10px;
+border-radius:10px;
+text-align:center;
+}
 
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
+.product img{
+width:100%;
+height:120px;
+object-fit:cover;
+border-radius:8px;
+}
 
-let total = 0;
+.btn{
+background:#3498db;
+color:white;
+border:none;
+padding:6px 10px;
+margin:5px;
+border-radius:6px;
+}
 
-cart.forEach(p=>{
-total += p.price * p.qty;
-});
+.cartBtn{
+position:fixed;
+top:80px;
+left:10px;
+background:#e74c3c;
+color:white;
+padding:10px;
+border-radius:20px;
+}
 
-await addDoc(collection(db,"orders"),{
+</style>
 
-customerName:name,
-phone:phone,
-location:location,
-payment:payment,
-cart:cart,
-total:total,
-status:"طلب جديد",
-time:Date.now()
+</head>
 
-});
+<body>
 
-alert("تم إرسال الطلب بنجاح");
+<div class="header">بقالة ستور</div>
 
-localStorage.removeItem("cart");
+<button class="cartBtn" onclick="openCart()">🛒</button>
 
-location.reload();
+<div class="products" id="products"></div>
+
+<script>
+
+let products=[
+{name:"سكر",price:1000,img:"https://i.imgur.com/Y5bq9Qh.jpg"},
+{name:"أرز",price:67,img:"https://i.imgur.com/6X6vQqC.jpg"},
+{name:"زيت",price:850,img:"https://i.imgur.com/F0T9K8L.jpg"},
+{name:"مكرونة",price:300,img:"https://i.imgur.com/BG7K9M7.jpg"}
+]
+
+let cart=[]
+
+function loadProducts(){
+
+let container=document.getElementById("products")
+
+products.forEach((p,i)=>{
+
+container.innerHTML+=`
+
+<div class="product">
+
+<img src="${p.img}">
+
+<h3>${p.name}</h3>
+
+<p>${p.price} جنيه</p>
+
+<button class="btn" onclick="add(${i})">+</button>
+
+<button class="btn" onclick="remove(${i})">-</button>
+
+</div>
+
+`
+
+})
 
 }
 
+function add(i){
+
+cart.push(products[i])
+
+navigator.vibrate(200)
+
+alert("تمت إضافة المنتج")
+
+}
+
+function remove(i){
+
+cart.pop()
+
+}
+
+function openCart(){
+
+alert("عدد المنتجات: "+cart.length)
+
+}
+
+loadProducts()
+
 </script>
+
+</body>
+</html>
