@@ -18,7 +18,42 @@ direction:rtl;
 background:#27ae60;
 color:white;
 padding:12px;
-text-align:center;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.profile{
+width:40px;
+height:40px;
+background:white;
+color:#27ae60;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+font-weight:bold;
+}
+
+.topbar{
+display:flex;
+gap:10px;
+padding:10px;
+align-items:center;
+}
+
+.cart{
+background:#e74c3c;
+color:white;
+padding:10px;
+border-radius:8px;
+}
+
+.search input{
+width:100%;
+padding:10px;
+border-radius:8px;
+border:1px solid #ccc;
 }
 
 .products{
@@ -70,6 +105,18 @@ border-radius:10px;
 font-size:18px;
 }
 
+.toast{
+position:fixed;
+bottom:80px;
+left:50%;
+transform:translateX(-50%);
+background:#27ae60;
+color:white;
+padding:10px 20px;
+border-radius:8px;
+display:none;
+}
+
 .page{
 display:none;
 }
@@ -79,17 +126,52 @@ display:none;
 
 <body>
 
+<div id="registerPage">
 
-<div id="shopPage">
+<div class="header">أدخل بياناتك</div>
 
-<div class="header">متجر البقالة</div>
+<div style="padding:20px">
+
+<input id="userName" placeholder="اسمك" style="width:100%;padding:12px;margin-bottom:10px">
+
+<input id="userPhone" placeholder="رقمك" style="width:100%;padding:12px">
+
+<button onclick="saveUser()" style="width:100%;margin-top:10px;padding:12px;background:#27ae60;color:white;border:none;border-radius:8px">
+دخول المتجر
+</button>
+
+</div>
+
+</div>
+
+
+<div id="shopPage" class="page">
+
+<div class="header">
+
+<div>متجر البقالة</div>
+
+<div class="profile" id="profileCircle">A</div>
+
+</div>
+
+<div class="topbar">
+
+<div class="cart">
+🛒 <span id="cartCount">0</span>
+</div>
+
+<div class="search">
+<input id="search" placeholder="ابحث عن منتج..." onkeyup="searchProduct()">
+</div>
+
+</div>
 
 <div class="products" id="products"></div>
 
 <button class="nextBtn" onclick="goLocation()">التالي</button>
 
 </div>
-
 
 
 <div id="locationPage" class="page">
@@ -104,42 +186,23 @@ display:none;
 
 <div id="locationStatus" style="margin-top:10px"></div>
 
-<button onclick="goDelivery()" style="margin-top:20px;width:100%;padding:12px;background:#3498db;color:white;border:none;border-radius:8px">
-التالي
-</button>
-
-</div>
-
-</div>
-
-
-
-<div id="deliveryPage" class="page">
-
-<div class="header">اختيار الحي</div>
-
-<div style="padding:20px">
-
-<select id="deliverySelect" style="width:100%;padding:12px">
+<select id="district" style="width:100%;padding:12px;margin-top:20px">
 
 <option value="">اختر الحي</option>
-
-<option value="500">الحي الأول - 500</option>
-
-<option value="800">الحي الثاني - 800</option>
-
-<option value="1200">الحي الثالث - 1200</option>
+<option value="300">الحي الشرقي - 300</option>
+<option value="400">الحي الغربي - 400</option>
+<option value="500">الحي الأوسط - 500</option>
+<option value="600">الحي الجديد - 600</option>
 
 </select>
 
-<button onclick="goOrder()" style="margin-top:20px;width:100%;padding:12px;background:#27ae60;color:white;border:none;border-radius:8px">
+<button onclick="goOrder()" style="margin-top:20px;width:100%;padding:12px;background:#3498db;color:white;border:none;border-radius:8px">
 التالي
 </button>
 
 </div>
 
 </div>
-
 
 
 <div id="orderPage" class="page">
@@ -154,6 +217,10 @@ display:none;
 
 <h3>الإجمالي: <span id="total"></span> جنيه</h3>
 
+<button onclick="goBack()" style="width:100%;padding:12px;background:#777;color:white;border:none;border-radius:8px;margin-bottom:10px">
+رجوع
+</button>
+
 <button onclick="sendOrder()" style="width:100%;padding:12px;background:#27ae60;color:white;border:none;border-radius:8px">
 تأكيد الطلب
 </button>
@@ -162,12 +229,41 @@ display:none;
 
 </div>
 
-
+<div id="toast" class="toast">تمت الإضافة للسلة</div>
 
 <script>
 
-let locationData=null
-let deliveryPrice=0
+let sound=new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_2b5f8e0c3a.mp3")
+
+let user=localStorage.getItem("user")
+
+if(user){
+
+user=JSON.parse(user)
+
+document.getElementById("registerPage").style.display="none"
+
+document.getElementById("shopPage").style.display="block"
+
+document.getElementById("profileCircle").innerText=user.name.charAt(0)
+
+}
+
+function saveUser(){
+
+let name=document.getElementById("userName").value
+let phone=document.getElementById("userPhone").value
+
+if(!name || !phone){
+alert("اكتب الاسم والرقم")
+return
+}
+
+localStorage.setItem("user",JSON.stringify({name,phone}))
+
+location.reload()
+
+}
 
 let products=[
 {name:"سكر",price:1000,img:"https://images.unsplash.com/photo-1586201375761-83865001e31c"},
@@ -177,12 +273,14 @@ let products=[
 ]
 
 let cart={}
+let locationData=null
+let deliveryPrice=0
 
-function showProducts(){
+function showProducts(list=products){
 
 let html=""
 
-products.forEach((p,i)=>{
+list.forEach((p,i)=>{
 
 html+=`
 
@@ -216,8 +314,13 @@ document.getElementById("products").innerHTML=html
 
 showProducts()
 
-
 function plus(i){
+
+sound.play()
+
+if(navigator.vibrate) navigator.vibrate(80)
+
+showToast()
 
 if(!cart[i]) cart[i]={...products[i],qty:0}
 
@@ -243,6 +346,8 @@ updateCart()
 
 function updateCart(){
 
+let count=0
+
 products.forEach((p,i)=>{
 
 let q=cart[i]?cart[i].qty:0
@@ -253,8 +358,35 @@ if(el) el.innerText=q
 
 })
 
+for(let i in cart){
+
+count+=cart[i].qty
+
 }
 
+document.getElementById("cartCount").innerText=count
+
+}
+
+function searchProduct(){
+
+let text=document.getElementById("search").value
+
+let filtered=products.filter(p=>p.name.includes(text))
+
+showProducts(filtered)
+
+}
+
+function showToast(){
+
+let t=document.getElementById("toast")
+
+t.style.display="block"
+
+setTimeout(()=>{t.style.display="none"},1200)
+
+}
 
 function goLocation(){
 
@@ -263,7 +395,6 @@ document.getElementById("shopPage").style.display="none"
 document.getElementById("locationPage").style.display="block"
 
 }
-
 
 function getLocation(){
 
@@ -280,39 +411,23 @@ document.getElementById("locationStatus").innerText="تم تحديد الموق�
 
 }
 
-
-function goDelivery(){
-
-if(!locationData){
-
-alert("يجب إرسال الموقع أولاً")
-
-return
-
-}
-
-document.getElementById("locationPage").style.display="none"
-
-document.getElementById("deliveryPage").style.display="block"
-
-}
-
-
 function goOrder(){
 
-let select=document.getElementById("deliverySelect")
+let district=document.getElementById("district")
 
-if(!select.value){
-
-alert("اختر الحي")
-
+if(!locationData){
+alert("أرسل الموقع أولاً")
 return
-
 }
 
-deliveryPrice=parseInt(select.value)
+if(district.value==""){
+alert("اختر الحي")
+return
+}
 
-document.getElementById("deliveryPage").style.display="none"
+deliveryPrice=parseInt(district.value)
+
+document.getElementById("locationPage").style.display="none"
 
 document.getElementById("orderPage").style.display="block"
 
@@ -337,6 +452,13 @@ document.getElementById("total").innerText=total
 
 }
 
+function goBack(){
+
+document.getElementById("orderPage").style.display="none"
+
+document.getElementById("shopPage").style.display="block"
+
+}
 
 function sendOrder(){
 
