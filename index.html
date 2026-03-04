@@ -17,9 +17,23 @@ direction:rtl;
 .header{
 background:#27ae60;
 color:white;
-padding:15px;
-text-align:center;
-font-size:22px;
+padding:12px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.profile{
+width:40px;
+height:40px;
+background:white;
+color:#27ae60;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+font-weight:bold;
+cursor:pointer;
 }
 
 .topbar{
@@ -108,6 +122,17 @@ display:none;
 display:none;
 }
 
+.profileBox{
+position:fixed;
+top:70px;
+left:10px;
+background:white;
+padding:15px;
+border-radius:10px;
+box-shadow:0 2px 10px rgba(0,0,0,0.2);
+display:none;
+}
+
 </style>
 </head>
 
@@ -136,7 +161,11 @@ display:none;
 <div id="shopPage" class="page">
 
 <div class="header">
-مرحبا <span id="userDisplay"></span>
+
+<div>متجر البقالة</div>
+
+<div class="profile" onclick="toggleProfile()" id="profileCircle">A</div>
+
 </div>
 
 <div class="topbar">
@@ -181,6 +210,19 @@ display:none;
 
 </div>
 
+
+<div id="profileBox" class="profileBox">
+
+<div id="profileName"></div>
+<div id="profilePhone"></div>
+
+<button onclick="logout()" style="margin-top:10px;background:#e74c3c;color:white;border:none;padding:8px;border-radius:6px">
+تغيير المستخدم
+</button>
+
+</div>
+
+
 <div id="toast" class="toast">تمت الإضافة للسلة</div>
 
 <script>
@@ -197,7 +239,10 @@ document.getElementById("registerPage").style.display="none"
 
 document.getElementById("shopPage").style.display="block"
 
-document.getElementById("userDisplay").innerText=user.name
+document.getElementById("profileCircle").innerText=user.name.charAt(0)
+
+document.getElementById("profileName").innerText="الاسم: "+user.name
+document.getElementById("profilePhone").innerText="الرقم: "+user.phone
 
 }
 
@@ -374,6 +419,22 @@ document.getElementById("shopPage").style.display="block"
 function sendOrder(){
 
 alert("تم إرسال الطلب")
+
+}
+
+function toggleProfile(){
+
+let box=document.getElementById("profileBox")
+
+box.style.display = box.style.display=="block" ? "none" : "block"
+
+}
+
+function logout(){
+
+localStorage.removeItem("user")
+
+location.reload()
 
 }
 
