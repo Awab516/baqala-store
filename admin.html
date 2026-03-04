@@ -37,7 +37,8 @@ button{
 padding:8px 12px;
 border:none;
 border-radius:6px;
-margin-top:5px;
+margin-top:8px;
+margin-left:5px;
 }
 
 .call{
@@ -87,23 +88,30 @@ snapshot.forEach(doc=>{
 
 let o=doc.data()
 
+let name = o.customerName || o.productName || "زبون"
+let phone = o.phone || "غير موجود"
+let total = o.total || o.totalPrice || 0
+let delivery = o.delivery || "غير محدد"
+let payment = o.payment || "كاش"
+let location = o.location || "#"
+
 let html=`
 
 <div class="order">
 
-<h3>${o.customerName}</h3>
+<h3>${name}</h3>
 
-<p>📞 ${o.phone}</p>
+<p>📞 ${phone}</p>
 
-<p>💰 ${o.total} جنيه</p>
+<p>💰 ${total} جنيه</p>
 
-<p>🚚 توصيل: ${o.delivery}</p>
+<p>🚚 التوصيل: ${delivery}</p>
 
-<p>💳 الدفع: ${o.payment}</p>
+<p>💳 الدفع: ${payment}</p>
 
-<button class="call" onclick="call('${o.phone}')">اتصال</button>
+<button class="call" onclick="call('${phone}')">اتصال</button>
 
-<button class="map" onclick="map('${o.location}')">فتح الموقع</button>
+<button class="map" onclick="map('${location}')">فتح الموقع</button>
 
 </div>
 
