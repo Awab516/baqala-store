@@ -17,14 +17,49 @@ direction:rtl;
 .header{
 background:#27ae60;
 color:white;
-padding:15px;
-text-align:center;
-font-size:22px;
+padding:12px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.profile{
+width:40px;
+height:40px;
+background:white;
+color:#27ae60;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+font-weight:bold;
+cursor:pointer;
+}
+
+.topbar{
+display:flex;
+gap:10px;
+padding:10px;
+align-items:center;
+}
+
+.cart{
+background:#e74c3c;
+color:white;
+padding:10px;
+border-radius:8px;
+}
+
+.search input{
+width:100%;
+padding:10px;
+border-radius:8px;
+border:1px solid #ccc;
 }
 
 .products{
 display:grid;
-grid-template-columns:repeat(2,1fr);
+grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
 gap:10px;
 padding:10px;
 }
@@ -38,72 +73,268 @@ text-align:center;
 
 .product img{
 width:100%;
-height:120px;
+height:100px;
 object-fit:cover;
-border-radius:8px;
-}
-
-.btn{
-background:#3498db;
-color:white;
-border:none;
-padding:6px 10px;
-margin:5px;
 border-radius:6px;
 }
 
-.cartBtn{
-position:fixed;
-top:80px;
-left:10px;
-background:#e74c3c;
+.qty{
+display:flex;
+justify-content:center;
+gap:10px;
+margin-top:6px;
+}
+
+.qty button{
+background:#3498db;
 color:white;
-padding:10px;
-border-radius:20px;
+border:none;
+padding:5px 10px;
+border-radius:6px;
+}
+
+.nextBtn{
+position:fixed;
+bottom:15px;
+left:15px;
+right:15px;
+background:#27ae60;
+color:white;
+padding:14px;
+border:none;
+border-radius:10px;
+font-size:18px;
+}
+
+.toast{
+position:fixed;
+bottom:80px;
+left:50%;
+transform:translateX(-50%);
+background:#27ae60;
+color:white;
+padding:10px 20px;
+border-radius:8px;
+display:none;
+}
+
+.page{
+display:none;
 }
 
 </style>
-
 </head>
 
 <body>
 
-<div class="header">بقالة ستور</div>
+<div id="registerPage">
 
-<button class="cartBtn" onclick="openCart()">🛒</button>
+<div class="header">أدخل بياناتك</div>
+
+<div style="padding:20px">
+
+<input id="userName" placeholder="اسمك" style="width:100%;padding:12px;margin-bottom:10px">
+
+<input id="userPhone" placeholder="رقمك" style="width:100%;padding:12px">
+
+<button onclick="saveUser()" style="width:100%;margin-top:10px;padding:12px;background:#27ae60;color:white;border:none;border-radius:8px">
+دخول المتجر
+</button>
+
+</div>
+
+</div>
+
+<div id="shopPage" class="page">
+
+<div class="header">
+<div>بقالة ستور</div>
+<div class="profile" id="profileCircle">A</div>
+</div>
+
+<div class="topbar">
+
+<div class="cart">
+🛒 <span id="cartCount">0</span>
+</div>
+
+<div class="search">
+<input id="search" placeholder="ابحث..." onkeyup="searchProduct()">
+</div>
+
+</div>
 
 <div class="products" id="products"></div>
 
-<script>
+<button class="nextBtn" onclick="goLocation()">التالي</button>
+
+</div>
+
+<div id="locationPage" class="page">
+
+<div class="header">إرسال الموقع</div>
+
+<div style="padding:20px">
+
+<button onclick="openMaps()" 
+style="width:100%;padding:14px;background:#27ae60;color:white;border:none;border-radius:8px">
+فتح الخريطة وإرسال موقعي
+</button>
+
+<input id="locationLink"
+placeholder="الصق رابط الموقع هنا"
+style="width:100%;padding:12px;margin-top:15px;border:1px solid #ccc;border-radius:8px">
+
+<select id="district" style="width:100%;padding:12px;margin-top:15px">
+<option value="">اختر الحي</option>
+<option value="300">الحي الشرقي - 300</option>
+<option value="400">الحي الغربي - 400</option>
+<option value="500">الحي الأوسط - 500</option>
+<option value="600">الحي الجديد - 600</option>
+</select>
+
+<button onclick="goOrder()" style="margin-top:20px;width:100%;padding:12px;background:#3498db;color:white;border:none;border-radius:8px">
+التالي
+</button>
+
+</div>
+
+</div>
+
+<div id="orderPage" class="page">
+
+<div class="header">تفاصيل الطلب</div>
+
+<div style="padding:20px">
+
+<div id="orderItems"></div>
+
+<p>سعر التوصيل: <span id="deliveryPrice"></span></p>
+
+<h3>الإجمالي: <span id="total"></span> جنيه</h3>
+
+<button onclick="goPayment()" style="width:100%;padding:12px;background:#27ae60;color:white;border:none;border-radius:8px">
+التالي
+</button>
+
+</div>
+
+</div>
+
+<div id="paymentPage" class="page">
+
+<div class="header">طريقة الدفع</div>
+
+<div style="padding:20px">
+
+<select id="paymentMethod" style="width:100%;padding:12px">
+<option value="">اختر طريقة الدفع</option>
+<option value="cash">الدفع عند الاستلام</option>
+<option value="online">الدفع أونلاين</option>
+</select>
+
+<div id="onlineOptions" style="display:none;margin-top:15px">
+
+<select id="wallet" style="width:100%;padding:12px">
+<option value="">اختر المحفظة</option>
+<option value="bankak">بنكك</option>
+<option value="mycash">ماي كاشي</option>
+<option value="okcash">أوكاشي</option>
+</select>
+
+</div>
+
+<button onclick="confirmOrder()" style="margin-top:20px;width:100%;padding:12px;background:#27ae60;color:white;border:none;border-radius:8px">
+تأكيد الطلب
+</button>
+
+</div>
+
+</div>
+
+<div id="toast" class="toast">تمت الإضافة للسلة</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyANFomLC3CBPdB_3FS5ylbw1XHqHqFai3c",
+authDomain: "awab-store-f4428.firebaseapp.com",
+projectId: "awab-store-f4428",
+storageBucket: "awab-store-f4428.firebasestorage.app",
+messagingSenderId: "385135199201",
+appId: "1:385135199201:web:10c3ec0ae39f5fb0a3c8a0"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let sound=new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_2b5f8e0c3a.mp3")
+
+let user=localStorage.getItem("user")
+
+if(user){
+
+user=JSON.parse(user)
+
+document.getElementById("registerPage").style.display="none"
+document.getElementById("shopPage").style.display="block"
+
+document.getElementById("profileCircle").innerText=user.name.charAt(0)
+
+}
+
+function saveUser(){
+
+let name=document.getElementById("userName").value
+let phone=document.getElementById("userPhone").value
+
+if(!name || !phone){
+alert("اكتب الاسم والرقم")
+return
+}
+
+localStorage.setItem("user",JSON.stringify({name,phone}))
+
+location.reload()
+
+}
 
 let products=[
-{name:"سكر",price:1000,img:"https://i.imgur.com/Y5bq9Qh.jpg"},
-{name:"أرز",price:67,img:"https://i.imgur.com/6X6vQqC.jpg"},
-{name:"زيت",price:850,img:"https://i.imgur.com/F0T9K8L.jpg"},
-{name:"مكرونة",price:300,img:"https://i.imgur.com/BG7K9M7.jpg"}
+{name:"سكر",price:1000,img:"https://images.unsplash.com/photo-1586201375761-83865001e31c"},
+{name:"أرز",price:67,img:"https://images.unsplash.com/photo-1586201375799-3f2c9e70a5e3"},
+{name:"زيت",price:850,img:"https://images.unsplash.com/photo-1604908176997-125f25cc6f3d"},
+{name:"مكرونة",price:300,img:"https://images.unsplash.com/photo-1617196037304-0d7d6871f5ed"}
 ]
 
-let cart=[]
+let cart={}
+let deliveryPrice=0
 
-function loadProducts(){
+function showProducts(){
 
-let container=document.getElementById("products")
+let html=""
 
 products.forEach((p,i)=>{
 
-container.innerHTML+=`
+html+=`
 
 <div class="product">
 
 <img src="${p.img}">
 
-<h3>${p.name}</h3>
+<h4>${p.name}</h4>
 
 <p>${p.price} جنيه</p>
 
-<button class="btn" onclick="add(${i})">+</button>
+<div class="qty">
 
-<button class="btn" onclick="remove(${i})">-</button>
+<button onclick="minus(${i})">-</button>
+<span id="qty${i}">0</span>
+<button onclick="plus(${i})">+</button>
+
+</div>
 
 </div>
 
@@ -111,31 +342,200 @@ container.innerHTML+=`
 
 })
 
-}
-
-function add(i){
-
-cart.push(products[i])
-
-navigator.vibrate(200)
-
-alert("تمت إضافة المنتج")
+document.getElementById("products").innerHTML=html
 
 }
 
-function remove(i){
+showProducts()
 
-cart.pop()
+window.plus=function(i){
+
+sound.play()
+if(navigator.vibrate) navigator.vibrate(80)
+
+showToast()
+
+if(!cart[i]) cart[i]={...products[i],qty:0}
+
+cart[i].qty++
+
+updateCart()
 
 }
 
-function openCart(){
+window.minus=function(i){
 
-alert("عدد المنتجات: "+cart.length)
+if(cart[i]){
+cart[i].qty--
+if(cart[i].qty<=0) delete cart[i]
+}
+
+updateCart()
 
 }
 
-loadProducts()
+function updateCart(){
+
+let count=0
+
+products.forEach((p,i)=>{
+
+let q=cart[i]?cart[i].qty:0
+document.getElementById("qty"+i).innerText=q
+
+})
+
+for(let i in cart){
+count+=cart[i].qty
+}
+
+document.getElementById("cartCount").innerText=count
+
+}
+
+function showToast(){
+
+let t=document.getElementById("toast")
+
+t.style.display="block"
+
+setTimeout(()=>{t.style.display="none"},1200)
+
+}
+
+window.goLocation=function(){
+
+document.getElementById("shopPage").style.display="none"
+document.getElementById("locationPage").style.display="block"
+
+}
+
+window.openMaps=function(){
+
+window.open("https://www.google.com/maps","_blank")
+
+alert("افتح الخريطة واضغط على موقعك ثم اختر مشاركة وانسخ الرابط والصقه هنا")
+
+}
+
+window.goOrder=function(){
+
+let link=document.getElementById("locationLink").value
+
+if(link==""){
+alert("الصق رابط الموقع")
+return
+}
+
+let district=document.getElementById("district")
+
+if(district.value==""){
+alert("اختر الحي")
+return
+}
+
+deliveryPrice=parseInt(district.value)
+
+document.getElementById("locationPage").style.display="none"
+document.getElementById("orderPage").style.display="block"
+
+let html=""
+let total=0
+
+for(let i in cart){
+
+let p=cart[i]
+
+html+=`<p>${p.name} × ${p.qty}</p>`
+
+total+=p.price*p.qty
+
+}
+
+total+=deliveryPrice
+
+document.getElementById("orderItems").innerHTML=html
+document.getElementById("deliveryPrice").innerText=deliveryPrice
+document.getElementById("total").innerText=total
+
+}
+
+window.goPayment=function(){
+
+document.getElementById("orderPage").style.display="none"
+document.getElementById("paymentPage").style.display="block"
+
+}
+
+document.getElementById("paymentMethod").addEventListener("change",function(){
+
+if(this.value=="online"){
+document.getElementById("onlineOptions").style.display="block"
+}else{
+document.getElementById("onlineOptions").style.display="none"
+}
+
+})
+
+window.confirmOrder=async function(){
+
+let pay=document.getElementById("paymentMethod").value
+let wallet=document.getElementById("wallet").value
+
+if(pay==""){
+alert("اختر طريقة الدفع")
+return
+}
+
+if(pay=="online" && wallet==""){
+alert("اختر المحفظة")
+return
+}
+
+let userData=JSON.parse(localStorage.getItem("user"))
+let locationLink=document.getElementById("locationLink").value
+
+let orderProducts=[]
+let total=0
+
+for(let i in cart){
+
+let p=cart[i]
+
+orderProducts.push({
+name:p.name,
+qty:p.qty,
+price:p.price
+})
+
+total+=p.price*p.qty
+
+}
+
+total+=deliveryPrice
+
+await addDoc(collection(db,"orders"),{
+
+customerName:userData.name,
+phone:userData.phone,
+location:locationLink,
+payment:pay,
+wallet:wallet,
+products:orderProducts,
+delivery:deliveryPrice,
+total:total,
+status:"طلب جديد",
+time:Date.now()
+
+})
+
+alert("تم إرسال الطلب بنجاح")
+
+cart={}
+
+location.reload()
+
+}
 
 </script>
 
