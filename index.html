@@ -22,6 +22,27 @@ padding:18px;
 font-size:24px;
 }
 
+.login{
+padding:20px;
+}
+
+.login input{
+width:100%;
+padding:12px;
+margin-bottom:10px;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
+.login button{
+background:#2ecc71;
+border:none;
+color:white;
+padding:12px;
+width:100%;
+border-radius:8px;
+}
+
 .topbar{
 display:flex;
 gap:10px;
@@ -74,12 +95,6 @@ border:none;
 color:white;
 padding:6px 12px;
 border-radius:6px;
-font-size:16px;
-}
-
-.warn{
-color:red;
-font-size:12px;
 }
 
 .nextBtn{
@@ -108,45 +123,31 @@ border-radius:8px;
 border:1px solid #ccc;
 }
 
-.backBtn{
-background:#777;
-color:white;
-border:none;
-padding:12px;
-border-radius:8px;
-margin-bottom:10px;
-}
-
-.sendBtn{
-background:#2ecc71;
-color:white;
-border:none;
-padding:12px;
-border-radius:8px;
-}
-
-.toast{
-position:fixed;
-bottom:80px;
-left:50%;
-transform:translateX(-50%);
-background:#2ecc71;
-color:white;
-padding:10px 20px;
-border-radius:8px;
-display:none;
-}
-
 </style>
 </head>
 
 <body>
 
+<div id="loginPage" class="login">
+
+<h2>تسجيل الدخول</h2>
+
+<input id="userName" placeholder="اسمك">
+
+<input id="userPhone" placeholder="رقمك أو ايميلك">
+
+<input id="userPass" placeholder="كلمة السر">
+
+<button onclick="saveUser()">دخول</button>
+
+</div>
+
+
+<div id="shopPage" style="display:none">
+
 <div class="header">
 بقالة ستور
 </div>
-
-<div id="shopPage">
 
 <div class="topbar">
 
@@ -167,13 +168,13 @@ display:none;
 
 <div id="orderPage" class="orderPage">
 
-<button class="backBtn" onclick="goBack()">رجوع</button>
+<button onclick="goBack()">رجوع</button>
 
 <h3>بيانات الطلب</h3>
 
-<input placeholder="اسمك" id="name">
-<input placeholder="رقمك" id="phone">
-<input placeholder="موقعك" id="location">
+<input id="name">
+<input id="phone">
+<input id="location" placeholder="موقعك">
 
 <h3>الطلبات</h3>
 
@@ -181,40 +182,55 @@ display:none;
 
 <h3>الإجمالي: <span id="total"></span> جنيه</h3>
 
-<button class="sendBtn" onclick="sendOrder()">تأكيد الطلب</button>
+<button onclick="sendOrder()">تأكيد الطلب</button>
 
 </div>
 
-
-<div id="toast" class="toast">
-تمت الإضافة للسلة
-</div>
 
 <script>
 
+let savedUser=localStorage.getItem("user")
+
+if(savedUser){
+
+document.getElementById("loginPage").style.display="none"
+document.getElementById("shopPage").style.display="block"
+
+}
+
+function saveUser(){
+
+let name=document.getElementById("userName").value
+let phone=document.getElementById("userPhone").value
+let pass=document.getElementById("userPass").value
+
+let user={
+name:name,
+phone:phone,
+pass:pass
+}
+
+localStorage.setItem("user",JSON.stringify(user))
+
+location.reload()
+
+}
+
+
 let products=[
-{name:"سكر",price:1000,stock:10,img:"https://images.unsplash.com/photo-1586201375761-83865001e31c"},
-{name:"أرز",price:67,stock:3,img:"https://images.unsplash.com/photo-1586201375799-3f2c9e70a5e3"},
-{name:"زيت",price:850,stock:7,img:"https://images.unsplash.com/photo-1604908176997-125f25cc6f3d"},
-{name:"مكرونة",price:300,stock:2,img:"https://images.unsplash.com/photo-1617196037304-0d7d6871f5ed"},
-{name:"شاي",price:400,stock:6,img:"https://images.unsplash.com/photo-1509042239860-f550ce710b93"}
+{name:"سكر",price:1000,img:"https://images.unsplash.com/photo-1586201375761-83865001e31c"},
+{name:"أرز",price:67,img:"https://images.unsplash.com/photo-1586201375799-3f2c9e70a5e3"},
+{name:"زيت",price:850,img:"https://images.unsplash.com/photo-1604908176997-125f25cc6f3d"},
+{name:"مكرونة",price:300,img:"https://images.unsplash.com/photo-1617196037304-0d7d6871f5ed"}
 ]
 
 let cart={}
-
-let sound=new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_2b5f8e0c3a.mp3")
 
 function showProducts(){
 
 let html=""
 
 products.forEach((p,i)=>{
-
-let warn=""
-
-if(p.stock<=3){
-warn="<div class='warn'>⚠ الكمية قليلة</div>"
-}
 
 html+=`
 
@@ -225,8 +241,6 @@ html+=`
 <h4>${p.name}</h4>
 
 <p>${p.price} جنيه</p>
-
-${warn}
 
 <div class="qty">
 
@@ -251,14 +265,6 @@ document.getElementById("products").innerHTML=html
 showProducts()
 
 function plus(i){
-
-sound.play()
-
-if(navigator.vibrate){
-navigator.vibrate(80)
-}
-
-showToast()
 
 if(!cart[i]){
 cart[i]={...products[i],qty:0}
@@ -303,7 +309,6 @@ if(el) el.innerText=q
 function goOrder(){
 
 document.getElementById("shopPage").style.display="none"
-
 document.getElementById("orderPage").style.display="block"
 
 let html=""
@@ -327,34 +332,13 @@ document.getElementById("total").innerText=total
 function goBack(){
 
 document.getElementById("shopPage").style.display="block"
-
 document.getElementById("orderPage").style.display="none"
 
 }
 
 function sendOrder(){
 
-let name=document.getElementById("name").value
-let phone=document.getElementById("phone").value
-
-if(!name || !phone){
-alert("اكتب الاسم والرقم")
-return
-}
-
 alert("تم إرسال الطلب")
-
-}
-
-function showToast(){
-
-let toast=document.getElementById("toast")
-
-toast.style.display="block"
-
-setTimeout(()=>{
-toast.style.display="none"
-},1200)
 
 }
 
