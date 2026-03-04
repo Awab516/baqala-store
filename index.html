@@ -22,6 +22,17 @@ padding:20px;
 font-size:28px;
 }
 
+.search{
+padding:15px;
+}
+
+.search input{
+width:100%;
+padding:10px;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
 .product{
 background:white;
 margin:15px;
@@ -98,6 +109,10 @@ margin-top:5px;
 بقالة ستور
 </div>
 
+<div class="search">
+<input id="search" placeholder="ابحث عن منتج..." onkeyup="searchProduct()">
+</div>
+
 <div id="products"></div>
 
 <div class="cart-btn" onclick="openCart()">
@@ -133,11 +148,11 @@ let products=[
 
 let cart={}
 
-function showProducts(){
+function showProducts(list=products){
 
 let html=""
 
-products.forEach((p,i)=>{
+list.forEach((p,i)=>{
 
 let warn=""
 
@@ -175,6 +190,16 @@ document.getElementById("products").innerHTML=html
 
 showProducts()
 
+function searchProduct(){
+
+let text=document.getElementById("search").value
+
+let filtered=products.filter(p=>p.name.includes(text))
+
+showProducts(filtered)
+
+}
+
 function plus(i){
 
 if(!cart[i]){
@@ -182,9 +207,7 @@ cart[i]={...products[i],qty:0}
 }
 
 if(cart[i].qty < products[i].stock){
-
 cart[i].qty++
-
 }
 
 updateCart()
@@ -245,9 +268,7 @@ document.getElementById("total").innerText=total
 }
 
 function openCart(){
-
 document.getElementById("cart").style.display="block"
-
 }
 
 function sendOrder(){
