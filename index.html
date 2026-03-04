@@ -18,12 +18,12 @@ direction:rtl;
 background:#2ecc71;
 color:white;
 text-align:center;
-padding:20px;
-font-size:28px;
+padding:18px;
+font-size:24px;
 }
 
 .search{
-padding:15px;
+padding:10px;
 }
 
 .search input{
@@ -35,7 +35,7 @@ border:1px solid #ccc;
 
 .products{
 display:grid;
-grid-template-columns:repeat(5,1fr);
+grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
 gap:10px;
 padding:10px;
 }
@@ -45,22 +45,18 @@ background:white;
 padding:10px;
 border-radius:10px;
 text-align:center;
+box-shadow:0 2px 5px rgba(0,0,0,0.1);
 }
 
 .product img{
 width:100%;
-height:90px;
+height:100px;
 object-fit:cover;
 border-radius:8px;
 }
 
-button{
-background:#2ecc71;
-border:none;
-color:white;
-padding:6px 10px;
-border-radius:6px;
-font-size:14px;
+.price{
+margin:5px 0;
 }
 
 .qty{
@@ -72,6 +68,10 @@ margin-top:5px;
 
 .qty button{
 background:#3498db;
+border:none;
+color:white;
+padding:5px 10px;
+border-radius:6px;
 }
 
 .cart-btn{
@@ -87,6 +87,7 @@ font-size:20px;
 display:flex;
 align-items:center;
 justify-content:center;
+z-index:999;
 }
 
 .cart{
@@ -98,6 +99,7 @@ height:100%;
 background:white;
 padding:20px;
 overflow:auto;
+display:none;
 }
 
 .warn{
@@ -124,7 +126,7 @@ font-size:12px;
 🛒 <span id="cartCount">0</span>
 </div>
 
-<div id="cart" class="cart" style="display:none">
+<div id="cart" class="cart">
 
 <h2>السلة</h2>
 
@@ -145,24 +147,23 @@ font-size:12px;
 <script>
 
 let products=[
-{name:"سكر",price:1000,stock:10,img:"https://i.imgur.com/dt6FQF6.jpg"},
-{name:"أرز",price:67,stock:3,img:"https://i.imgur.com/8Qf4G2P.jpg"},
-{name:"زيت",price:850,stock:7,img:"https://i.imgur.com/Bm7gF6G.jpg"},
-{name:"مكرونة",price:300,stock:2,img:"https://i.imgur.com/k3U4G2S.jpg"},
-{name:"شاي",price:400,stock:6,img:"https://i.imgur.com/qcYpJ2U.jpg"},
-{name:"ملح",price:50,stock:9,img:"https://i.imgur.com/tGbaZCY.jpg"},
-{name:"عدس",price:500,stock:4,img:"https://i.imgur.com/0E3L0GQ.jpg"},
-{name:"فول",price:350,stock:8,img:"https://i.imgur.com/M0u9T4S.jpg"}
+{name:"سكر",price:1000,stock:10,img:"https://images.unsplash.com/photo-1586201375761-83865001e31c"},
+{name:"أرز",price:67,stock:3,img:"https://images.unsplash.com/photo-1586201375799-3f2c9e70a5e3"},
+{name:"زيت",price:850,stock:7,img:"https://images.unsplash.com/photo-1604908176997-125f25cc6f3d"},
+{name:"مكرونة",price:300,stock:2,img:"https://images.unsplash.com/photo-1617196037304-0d7d6871f5ed"},
+{name:"شاي",price:400,stock:6,img:"https://images.unsplash.com/photo-1509042239860-f550ce710b93"},
+{name:"ملح",price:50,stock:9,img:"https://images.unsplash.com/photo-1604908177522-43259c59eae0"},
+{name:"عدس",price:500,stock:4,img:"https://images.unsplash.com/photo-1598515214211-89d3c73ae83b"},
+{name:"فول",price:350,stock:8,img:"https://images.unsplash.com/photo-1615485737457-1f0cce5a9c9b"}
 ]
 
 let cart={}
-let filtered=products
 
 function showProducts(){
 
 let html=""
 
-filtered.forEach((p,i)=>{
+products.forEach((p,i)=>{
 
 let warn=""
 
@@ -177,7 +178,7 @@ html+=`
 
 <h4>${p.name}</h4>
 
-<p>${p.price} جنيه</p>
+<div class="price">${p.price} جنيه</div>
 
 ${warn}
 
@@ -206,21 +207,37 @@ function searchProduct(){
 
 let text=document.getElementById("search").value
 
-filtered=products.filter(p=>p.name.includes(text))
+let filtered=products.filter(p=>p.name.includes(text))
 
-showProducts()
+let html=""
+
+filtered.forEach((p,i)=>{
+
+html+=`
+<div class="product">
+
+<img src="${p.img}">
+
+<h4>${p.name}</h4>
+
+<div class="price">${p.price} جنيه</div>
+
+</div>
+`
+
+})
+
+document.getElementById("products").innerHTML=html
 
 }
 
 function plus(i){
 
 if(!cart[i]){
-cart[i]={...filtered[i],qty:0}
+cart[i]={...products[i],qty:0}
 }
 
-if(cart[i].qty < filtered[i].stock){
 cart[i].qty++
-}
 
 updateCart()
 
@@ -248,15 +265,6 @@ let count=0
 let total=0
 let html=""
 
-filtered.forEach((p,i)=>{
-
-let q=cart[i]?cart[i].qty:0
-
-let el=document.getElementById("qty"+i)
-if(el) el.innerText=q
-
-})
-
 for(let i in cart){
 
 let p=cart[i]
@@ -265,11 +273,7 @@ count+=p.qty
 
 total+=p.price*p.qty
 
-html+=`
-<p>
-${p.name} × ${p.qty}
-</p>
-`
+html+=`<p>${p.name} × ${p.qty}</p>`
 
 }
 
