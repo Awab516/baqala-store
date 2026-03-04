@@ -19,7 +19,14 @@ background:#2ecc71;
 color:white;
 text-align:center;
 padding:18px;
-font-size:24px;
+font-size:22px;
+}
+
+.userbar{
+background:#27ae60;
+color:white;
+padding:10px;
+text-align:center;
 }
 
 .register{
@@ -118,10 +125,14 @@ font-size:18px;
 بقالة ستور
 </div>
 
+<div class="userbar">
+مرحبا <span id="userDisplay"></span>
+</div>
+
 <div class="products" id="products"></div>
 
-<button class="nextBtn" onclick="goOrder()">
-التالي
+<button class="nextBtn" onclick="sendOrder()">
+تأكيد الطلب
 </button>
 
 </div>
@@ -133,8 +144,12 @@ let savedUser=localStorage.getItem("user")
 
 if(savedUser){
 
+let user=JSON.parse(savedUser)
+
 document.getElementById("registerPage").style.display="none"
 document.getElementById("shopPage").style.display="block"
+
+document.getElementById("userDisplay").innerText=user.name
 
 }
 
@@ -251,11 +266,24 @@ if(el) el.innerText=q
 
 }
 
-function goOrder(){
+function sendOrder(){
 
 let user=JSON.parse(localStorage.getItem("user"))
 
-alert("الطلب باسم: "+user.name)
+let text="طلب جديد\n\n"
+
+for(let i in cart){
+
+let p=cart[i]
+
+text+=p.name+" × "+p.qty+"\n"
+
+}
+
+text+="\nالاسم: "+user.name
+text+="\nالرقم: "+user.phone
+
+alert(text)
 
 }
 
