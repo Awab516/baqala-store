@@ -157,21 +157,16 @@ width:200px;
 
 </div>
 
-
 <div id="shopPage" class="page">
 
 <div class="header">
-
 <div>متجر البقالة</div>
-
 <div class="profile" id="profileCircle" onclick="toggleProfile()">A</div>
-
 </div>
 
 <div class="profileMenu" id="profileMenu">
 
 <input id="editName" placeholder="الاسم" style="width:100%;padding:8px;margin-bottom:6px">
-
 <input id="editPhone" placeholder="الرقم" style="width:100%;padding:8px">
 
 <button onclick="saveProfile()" style="margin-top:8px;width:100%;padding:8px;background:#27ae60;color:white;border:none;border-radius:6px">
@@ -198,7 +193,6 @@ width:200px;
 
 </div>
 
-
 <div id="locationPage" class="page">
 
 <div class="header">إرسال الموقع</div>
@@ -212,13 +206,11 @@ width:200px;
 <div id="locationStatus" style="margin-top:10px"></div>
 
 <select id="district" style="width:100%;padding:12px;margin-top:20px">
-
 <option value="">اختر الحي</option>
 <option value="300">الحي الشرقي - 300</option>
 <option value="400">الحي الغربي - 400</option>
 <option value="500">الحي الأوسط - 500</option>
 <option value="600">الحي الجديد - 600</option>
-
 </select>
 
 <button onclick="goOrder()" style="margin-top:20px;width:100%;padding:12px;background:#3498db;color:white;border:none;border-radius:8px">
@@ -228,7 +220,6 @@ width:200px;
 </div>
 
 </div>
-
 
 <div id="orderPage" class="page">
 
@@ -254,7 +245,6 @@ width:200px;
 
 </div>
 
-
 <div id="paymentPage" class="page">
 
 <div class="header">طريقة الدفع</div>
@@ -262,22 +252,18 @@ width:200px;
 <div style="padding:20px">
 
 <select id="paymentMethod" style="width:100%;padding:12px">
-
 <option value="">اختر طريقة الدفع</option>
 <option value="cash">الدفع عند الاستلام</option>
 <option value="online">الدفع أونلاين</option>
-
 </select>
 
 <div id="onlineOptions" style="display:none;margin-top:15px">
 
 <select id="wallet" style="width:100%;padding:12px">
-
 <option value="">اختر المحفظة</option>
 <option value="bankak">بنكك</option>
 <option value="mycash">ماي كاشي</option>
 <option value="okcash">أوكاشي</option>
-
 </select>
 
 </div>
@@ -303,7 +289,6 @@ if(user){
 user=JSON.parse(user)
 
 document.getElementById("registerPage").style.display="none"
-
 document.getElementById("shopPage").style.display="block"
 
 document.getElementById("profileCircle").innerText=user.name.charAt(0)
@@ -380,9 +365,7 @@ html+=`
 <div class="qty">
 
 <button onclick="minus(${i})">-</button>
-
 <span id="qty${i}">0</span>
-
 <button onclick="plus(${i})">+</button>
 
 </div>
@@ -402,7 +385,6 @@ showProducts()
 function plus(i){
 
 sound.play()
-
 if(navigator.vibrate) navigator.vibrate(80)
 
 showToast()
@@ -418,11 +400,8 @@ updateCart()
 function minus(i){
 
 if(cart[i]){
-
 cart[i].qty--
-
 if(cart[i].qty<=0) delete cart[i]
-
 }
 
 updateCart()
@@ -436,7 +415,6 @@ let count=0
 products.forEach((p,i)=>{
 
 let q=cart[i]?cart[i].qty:0
-
 let el=document.getElementById("qty"+i)
 
 if(el) el.innerText=q
@@ -444,9 +422,7 @@ if(el) el.innerText=q
 })
 
 for(let i in cart){
-
 count+=cart[i].qty
-
 }
 
 document.getElementById("cartCount").innerText=count
@@ -476,23 +452,46 @@ setTimeout(()=>{t.style.display="none"},1200)
 function goLocation(){
 
 document.getElementById("shopPage").style.display="none"
-
 document.getElementById("locationPage").style.display="block"
 
 }
 
+/* الإصلاح هنا */
+
 function getLocation(){
 
-navigator.geolocation.getCurrentPosition(function(pos){
+if(!navigator.geolocation){
 
-locationData={
-lat:pos.coords.latitude,
-lng:pos.coords.longitude
+alert("الموقع غير مدعوم في جهازك")
+
+return
+
 }
 
-document.getElementById("locationStatus").innerText="تم تحديد الموقع"
+document.getElementById("locationStatus").innerText="جارٍ تحديد الموقع..."
 
-})
+navigator.geolocation.getCurrentPosition(
+
+function(position){
+
+locationData={
+lat:position.coords.latitude,
+lng:position.coords.longitude
+}
+
+document.getElementById("locationStatus").innerText="تم تحديد الموقع بنجاح"
+
+},
+
+function(error){
+
+document.getElementById("locationStatus").innerText="يجب السماح للموقع"
+
+alert("اسمح للموقع من المتصفح")
+
+}
+
+)
 
 }
 
@@ -513,7 +512,6 @@ return
 deliveryPrice=parseInt(district.value)
 
 document.getElementById("locationPage").style.display="none"
-
 document.getElementById("orderPage").style.display="block"
 
 let html=""
@@ -540,7 +538,6 @@ document.getElementById("total").innerText=total
 function goBack(){
 
 document.getElementById("orderPage").style.display="none"
-
 document.getElementById("shopPage").style.display="block"
 
 }
@@ -577,7 +574,7 @@ alert("اختر المحفظة")
 return
 }
 
-alert("تم إرسال الطلب")
+alert("تم إرسال الطلب بنجاح")
 
 }
 
