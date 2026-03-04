@@ -18,42 +18,7 @@ direction:rtl;
 background:#27ae60;
 color:white;
 padding:12px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-
-.profile{
-width:40px;
-height:40px;
-background:white;
-color:#27ae60;
-border-radius:50%;
-display:flex;
-align-items:center;
-justify-content:center;
-font-weight:bold;
-}
-
-.topbar{
-display:flex;
-gap:10px;
-padding:10px;
-align-items:center;
-}
-
-.cart{
-background:#e74c3c;
-color:white;
-padding:10px;
-border-radius:8px;
-}
-
-.search input{
-width:100%;
-padding:10px;
-border-radius:8px;
-border:1px solid #ccc;
+text-align:center;
 }
 
 .products{
@@ -117,25 +82,7 @@ display:none;
 
 <div id="shopPage">
 
-<div class="header">
-
-<div>متجر البقالة</div>
-
-<div class="profile" id="profileCircle">A</div>
-
-</div>
-
-<div class="topbar">
-
-<div class="cart">
-🛒 <span id="cartCount">0</span>
-</div>
-
-<div class="search">
-<input id="search" placeholder="ابحث..." onkeyup="searchProduct()">
-</div>
-
-</div>
+<div class="header">متجر البقالة</div>
 
 <div class="products" id="products"></div>
 
@@ -151,15 +98,41 @@ display:none;
 
 <div style="padding:20px">
 
-<p>يرجى إرسال موقعك لإكمال الطلب</p>
-
 <button onclick="getLocation()" style="width:100%;padding:12px;background:#27ae60;color:white;border:none;border-radius:8px">
 إرسال موقعي
 </button>
 
 <div id="locationStatus" style="margin-top:10px"></div>
 
-<button onclick="goOrder()" style="margin-top:20px;width:100%;padding:12px;background:#3498db;color:white;border:none;border-radius:8px">
+<button onclick="goDelivery()" style="margin-top:20px;width:100%;padding:12px;background:#3498db;color:white;border:none;border-radius:8px">
+التالي
+</button>
+
+</div>
+
+</div>
+
+
+
+<div id="deliveryPage" class="page">
+
+<div class="header">اختيار الحي</div>
+
+<div style="padding:20px">
+
+<select id="deliverySelect" style="width:100%;padding:12px">
+
+<option value="">اختر الحي</option>
+
+<option value="500">الحي الأول - 500</option>
+
+<option value="800">الحي الثاني - 800</option>
+
+<option value="1200">الحي الثالث - 1200</option>
+
+</select>
+
+<button onclick="goOrder()" style="margin-top:20px;width:100%;padding:12px;background:#27ae60;color:white;border:none;border-radius:8px">
 التالي
 </button>
 
@@ -177,11 +150,9 @@ display:none;
 
 <div id="orderItems"></div>
 
-<h3>الإجمالي: <span id="total"></span> جنيه</h3>
+<p>سعر التوصيل: <span id="deliveryPrice"></span></p>
 
-<button onclick="goBack()" style="width:100%;padding:12px;background:#777;color:white;border:none;border-radius:8px;margin-bottom:10px">
-رجوع
-</button>
+<h3>الإجمالي: <span id="total"></span> جنيه</h3>
 
 <button onclick="sendOrder()" style="width:100%;padding:12px;background:#27ae60;color:white;border:none;border-radius:8px">
 تأكيد الطلب
@@ -192,16 +163,11 @@ display:none;
 </div>
 
 
+
 <script>
 
-let user=JSON.parse(localStorage.getItem("user"))
-
-if(user){
-document.getElementById("profileCircle").innerText=user.name.charAt(0)
-}
-
 let locationData=null
-
+let deliveryPrice=0
 
 let products=[
 {name:"سكر",price:1000,img:"https://images.unsplash.com/photo-1586201375761-83865001e31c"},
@@ -212,11 +178,11 @@ let products=[
 
 let cart={}
 
-function showProducts(list=products){
+function showProducts(){
 
 let html=""
 
-list.forEach((p,i)=>{
+products.forEach((p,i)=>{
 
 html+=`
 
@@ -277,8 +243,6 @@ updateCart()
 
 function updateCart(){
 
-let count=0
-
 products.forEach((p,i)=>{
 
 let q=cart[i]?cart[i].qty:0
@@ -288,25 +252,6 @@ let el=document.getElementById("qty"+i)
 if(el) el.innerText=q
 
 })
-
-for(let i in cart){
-
-count+=cart[i].qty
-
-}
-
-document.getElementById("cartCount").innerText=count
-
-}
-
-
-function searchProduct(){
-
-let text=document.getElementById("search").value
-
-let filtered=products.filter(p=>p.name.includes(text))
-
-showProducts(filtered)
 
 }
 
@@ -336,7 +281,7 @@ document.getElementById("locationStatus").innerText="تم تحديد الموق�
 }
 
 
-function goOrder(){
+function goDelivery(){
 
 if(!locationData){
 
@@ -347,6 +292,27 @@ return
 }
 
 document.getElementById("locationPage").style.display="none"
+
+document.getElementById("deliveryPage").style.display="block"
+
+}
+
+
+function goOrder(){
+
+let select=document.getElementById("deliverySelect")
+
+if(!select.value){
+
+alert("اختر الحي")
+
+return
+
+}
+
+deliveryPrice=parseInt(select.value)
+
+document.getElementById("deliveryPage").style.display="none"
 
 document.getElementById("orderPage").style.display="block"
 
@@ -363,24 +329,18 @@ total+=p.price*p.qty
 
 }
 
+total+=deliveryPrice
+
 document.getElementById("orderItems").innerHTML=html
+document.getElementById("deliveryPrice").innerText=deliveryPrice
 document.getElementById("total").innerText=total
-
-}
-
-
-function goBack(){
-
-document.getElementById("orderPage").style.display="none"
-
-document.getElementById("shopPage").style.display="block"
 
 }
 
 
 function sendOrder(){
 
-alert("تم إرسال الطلب مع الموقع")
+alert("تم إرسال الطلب")
 
 }
 
