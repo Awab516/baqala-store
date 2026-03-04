@@ -33,7 +33,6 @@ display:flex;
 align-items:center;
 justify-content:center;
 font-weight:bold;
-cursor:pointer;
 }
 
 .topbar{
@@ -176,13 +175,11 @@ display:none;
 
 <div style="padding:20px">
 
-<button onclick="openMaps()" 
-style="width:100%;padding:14px;background:#27ae60;color:white;border:none;border-radius:8px">
+<button onclick="openMaps()" style="width:100%;padding:14px;background:#27ae60;color:white;border:none;border-radius:8px">
 فتح الخريطة وإرسال موقعي
 </button>
 
-<input id="locationLink"
-placeholder="الصق رابط الموقع هنا"
+<input id="locationLink" placeholder="الصق رابط الموقع هنا"
 style="width:100%;padding:12px;margin-top:15px;border:1px solid #ccc;border-radius:8px">
 
 <select id="district" style="width:100%;padding:12px;margin-top:15px">
@@ -256,16 +253,16 @@ style="width:100%;padding:12px;margin-top:15px;border:1px solid #ccc;border-radi
 
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-apiKey: "AIzaSyANFomLC3CBPdB_3FS5ylbw1XHqHqFai3c",
-authDomain: "awab-store-f4428.firebaseapp.com",
-projectId: "awab-store-f4428",
-storageBucket: "awab-store-f4428.firebasestorage.app",
-messagingSenderId: "385135199201",
-appId: "1:385135199201:web:10c3ec0ae39f5fb0a3c8a0"
+apiKey: "ضع API KEY هنا",
+authDomain: "ضع authDomain هنا",
+projectId: "ضع projectId هنا",
+storageBucket: "ضع storageBucket هنا",
+messagingSenderId: "ضع messagingSenderId هنا",
+appId: "ضع appId هنا"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -286,7 +283,7 @@ document.getElementById("profileCircle").innerText=user.name.charAt(0)
 
 }
 
-function saveUser(){
+window.saveUser=function(){
 
 let name=document.getElementById("userName").value
 let phone=document.getElementById("userPhone").value
@@ -319,25 +316,18 @@ let html=""
 products.forEach((p,i)=>{
 
 html+=`
-
 <div class="product">
-
 <img src="${p.img}">
-
 <h4>${p.name}</h4>
-
 <p>${p.price} جنيه</p>
 
 <div class="qty">
-
 <button onclick="minus(${i})">-</button>
 <span id="qty${i}">0</span>
 <button onclick="plus(${i})">+</button>
-
 </div>
 
 </div>
-
 `
 
 })
@@ -413,8 +403,6 @@ document.getElementById("locationPage").style.display="block"
 window.openMaps=function(){
 
 window.open("https://www.google.com/maps","_blank")
-
-alert("افتح الخريطة واضغط على موقعك ثم اختر مشاركة وانسخ الرابط والصقه هنا")
 
 }
 
@@ -495,14 +483,14 @@ return
 let userData=JSON.parse(localStorage.getItem("user"))
 let locationLink=document.getElementById("locationLink").value
 
-let orderProducts=[]
+let items=[]
 let total=0
 
 for(let i in cart){
 
 let p=cart[i]
 
-orderProducts.push({
+items.push({
 name:p.name,
 qty:p.qty,
 price:p.price
@@ -519,20 +507,22 @@ await addDoc(collection(db,"orders"),{
 customerName:userData.name,
 phone:userData.phone,
 location:locationLink,
+
+items:items,
+
+delivery:deliveryPrice,
 payment:pay,
 wallet:wallet,
-products:orderProducts,
-delivery:deliveryPrice,
 total:total,
+
 status:"طلب جديد",
 time:Date.now()
 
 })
 
-alert("تم إرسال الطلب بنجاح")
+alert("تم إرسال الطلب")
 
 cart={}
-
 location.reload()
 
 }
