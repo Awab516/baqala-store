@@ -22,8 +22,15 @@ padding:18px;
 font-size:24px;
 }
 
-.search{
+.topbar{
+display:flex;
+gap:10px;
 padding:10px;
+align-items:center;
+}
+
+.search{
+flex:1;
 }
 
 .search input{
@@ -31,6 +38,15 @@ width:100%;
 padding:10px;
 border-radius:8px;
 border:1px solid #ccc;
+}
+
+.cart-btn{
+background:#e74c3c;
+color:white;
+border:none;
+padding:10px 15px;
+border-radius:8px;
+font-size:16px;
 }
 
 .products{
@@ -74,22 +90,6 @@ padding:5px 10px;
 border-radius:6px;
 }
 
-.cart-btn{
-position:fixed;
-bottom:20px;
-left:20px;
-background:#e74c3c;
-width:60px;
-height:60px;
-border-radius:50%;
-color:white;
-font-size:20px;
-display:flex;
-align-items:center;
-justify-content:center;
-z-index:999;
-}
-
 .cart{
 position:fixed;
 right:0;
@@ -116,15 +116,19 @@ font-size:12px;
 بقالة ستور
 </div>
 
+<div class="topbar">
+
+<button class="cart-btn" onclick="openCart()">
+🛒 <span id="cartCount">0</span>
+</button>
+
 <div class="search">
 <input id="search" placeholder="ابحث عن منتج..." onkeyup="searchProduct()">
 </div>
 
-<div class="products" id="products"></div>
-
-<div class="cart-btn" onclick="openCart()">
-🛒 <span id="cartCount">0</span>
 </div>
+
+<div class="products" id="products"></div>
 
 <div id="cart" class="cart">
 
