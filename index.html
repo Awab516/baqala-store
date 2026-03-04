@@ -17,26 +17,12 @@ direction:rtl;
 .header{
 background:#27ae60;
 color:white;
-padding:12px;
-display:flex;
-justify-content:space-between;
-align-items:center;
+padding:15px;
+text-align:center;
+font-size:20px;
 }
 
-.profile{
-width:40px;
-height:40px;
-background:white;
-color:#27ae60;
-border-radius:50%;
-display:flex;
-align-items:center;
-justify-content:center;
-font-weight:bold;
-cursor:pointer;
-}
-
-.topbar{
+.top{
 display:flex;
 gap:10px;
 padding:10px;
@@ -47,7 +33,7 @@ align-items:center;
 background:#e74c3c;
 color:white;
 padding:10px;
-border-radius:8px;
+border-radius:10px;
 }
 
 .search input{
@@ -59,7 +45,7 @@ border:1px solid #ccc;
 
 .products{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+grid-template-columns:repeat(2,1fr);
 gap:10px;
 padding:10px;
 }
@@ -73,7 +59,7 @@ text-align:center;
 
 .product img{
 width:100%;
-height:100px;
+height:120px;
 object-fit:cover;
 border-radius:6px;
 }
@@ -93,33 +79,34 @@ padding:5px 10px;
 border-radius:6px;
 }
 
-.nextBtn{
+.next{
 position:fixed;
-bottom:15px;
-left:15px;
-right:15px;
+bottom:10px;
+left:10px;
+right:10px;
 background:#27ae60;
 color:white;
-padding:14px;
+padding:15px;
 border:none;
 border-radius:10px;
 font-size:18px;
 }
 
-.toast{
-position:fixed;
-bottom:80px;
-left:50%;
-transform:translateX(-50%);
-background:#27ae60;
-color:white;
-padding:10px 20px;
-border-radius:8px;
-display:none;
-}
-
 .page{
 display:none;
+padding:20px;
+}
+
+input,select{
+width:100%;
+padding:10px;
+margin-top:10px;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
+button{
+cursor:pointer;
 }
 
 </style>
@@ -127,157 +114,124 @@ display:none;
 
 <body>
 
-<div id="registerPage">
+<div id="login">
 
-<div class="header">أدخل بياناتك</div>
+<div class="header">مرحبا بك</div>
 
 <div style="padding:20px">
 
-<input id="userName" placeholder="اسمك" style="width:100%;padding:12px;margin-bottom:10px">
+<input id="name" placeholder="اسمك">
 
-<input id="userPhone" placeholder="رقمك" style="width:100%;padding:12px">
+<input id="phone" placeholder="رقمك">
 
-<button onclick="saveUser()" style="width:100%;margin-top:10px;padding:12px;background:#27ae60;color:white;border:none;border-radius:8px">
-دخول المتجر
+<button onclick="saveUser()" style="margin-top:10px;background:#27ae60;color:white;padding:12px;border:none;border-radius:8px;width:100%">
+دخول
 </button>
 
 </div>
 
 </div>
 
-<div id="shopPage" class="page">
+<div id="shop" style="display:none">
 
-<div class="header">
-<div>بقالة ستور</div>
-<div class="profile" id="profileCircle">A</div>
-</div>
+<div class="header">بقالة ستور</div>
 
-<div class="topbar">
+<div class="top">
 
 <div class="cart">
-🛒 <span id="cartCount">0</span>
+🛒 <span id="count">0</span>
 </div>
 
 <div class="search">
-<input id="search" placeholder="ابحث..." onkeyup="searchProduct()">
+<input placeholder="ابحث عن منتج" onkeyup="searchProduct(this.value)">
 </div>
 
 </div>
 
 <div class="products" id="products"></div>
 
-<button class="nextBtn" onclick="goLocation()">التالي</button>
+<button class="next" onclick="goLocation()">التالي</button>
 
 </div>
 
 <div id="locationPage" class="page">
 
-<div class="header">إرسال الموقع</div>
+<h3>إرسال الموقع</h3>
 
-<div style="padding:20px">
-
-<button onclick="openMaps()" 
-style="width:100%;padding:14px;background:#27ae60;color:white;border:none;border-radius:8px">
-فتح الخريطة وإرسال موقعي
+<button onclick="openMaps()" style="background:#27ae60;color:white;border:none;padding:12px;border-radius:8px;width:100%">
+فتح الخريطة
 </button>
 
-<input id="locationLink"
-placeholder="الصق رابط الموقع هنا"
-style="width:100%;padding:12px;margin-top:15px;border:1px solid #ccc;border-radius:8px">
+<input id="locationLink" placeholder="الصق رابط الموقع هنا">
 
-<select id="district" style="width:100%;padding:12px;margin-top:15px">
+<select id="district">
 <option value="">اختر الحي</option>
 <option value="300">الحي الشرقي - 300</option>
 <option value="400">الحي الغربي - 400</option>
 <option value="500">الحي الأوسط - 500</option>
-<option value="600">الحي الجديد - 600</option>
 </select>
 
-<button onclick="goOrder()" style="margin-top:20px;width:100%;padding:12px;background:#3498db;color:white;border:none;border-radius:8px">
+<button onclick="goOrder()" style="margin-top:15px;background:#3498db;color:white;border:none;padding:12px;border-radius:8px;width:100%">
 التالي
 </button>
-
-</div>
 
 </div>
 
 <div id="orderPage" class="page">
 
-<div class="header">تفاصيل الطلب</div>
+<h3>تفاصيل الطلب</h3>
 
-<div style="padding:20px">
+<div id="items"></div>
 
-<div id="orderItems"></div>
+<p>التوصيل: <span id="delivery"></span></p>
 
-<p>سعر التوصيل: <span id="deliveryPrice"></span></p>
+<h3>الإجمالي: <span id="total"></span></h3>
 
-<h3>الإجمالي: <span id="total"></span> جنيه</h3>
-
-<button onclick="goPayment()" style="width:100%;padding:12px;background:#27ae60;color:white;border:none;border-radius:8px">
+<button onclick="goPayment()" style="background:#27ae60;color:white;border:none;padding:12px;border-radius:8px;width:100%">
 التالي
 </button>
 
 </div>
 
-</div>
-
 <div id="paymentPage" class="page">
 
-<div class="header">طريقة الدفع</div>
+<h3>طريقة الدفع</h3>
 
-<div style="padding:20px">
-
-<select id="paymentMethod" style="width:100%;padding:12px">
-<option value="">اختر طريقة الدفع</option>
-<option value="cash">الدفع عند الاستلام</option>
-<option value="online">الدفع أونلاين</option>
+<select id="payment">
+<option value="">اختر</option>
+<option value="cash">كاش</option>
+<option value="online">اونلاين</option>
 </select>
 
-<div id="onlineOptions" style="display:none;margin-top:15px">
-
-<select id="wallet" style="width:100%;padding:12px">
+<select id="wallet" style="display:none">
 <option value="">اختر المحفظة</option>
-<option value="bankak">بنكك</option>
-<option value="mycash">ماي كاشي</option>
-<option value="okcash">أوكاشي</option>
+<option>بنكك</option>
+<option>ماي كاشي</option>
+<option>أوكاشي</option>
 </select>
 
-</div>
-
-<button onclick="confirmOrder()" style="margin-top:20px;width:100%;padding:12px;background:#27ae60;color:white;border:none;border-radius:8px">
+<button onclick="confirmOrder()" style="margin-top:10px;background:#27ae60;color:white;border:none;padding:12px;border-radius:8px;width:100%">
 تأكيد الطلب
 </button>
 
 </div>
 
-</div>
-
-<div id="toast" class="toast">تمت الإضافة للسلة</div>
-
 <script>
-
-let sound=new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_2b5f8e0c3a.mp3")
 
 let user=localStorage.getItem("user")
 
 if(user){
-
-user=JSON.parse(user)
-
-document.getElementById("registerPage").style.display="none"
-document.getElementById("shopPage").style.display="block"
-
-document.getElementById("profileCircle").innerText=user.name.charAt(0)
-
+document.getElementById("login").style.display="none"
+document.getElementById("shop").style.display="block"
 }
 
 function saveUser(){
 
-let name=document.getElementById("userName").value
-let phone=document.getElementById("userPhone").value
+let name=document.getElementById("name").value
+let phone=document.getElementById("phone").value
 
-if(!name || !phone){
-alert("اكتب الاسم والرقم")
+if(!name||!phone){
+alert("اكتب البيانات")
 return
 }
 
@@ -288,20 +242,21 @@ location.reload()
 }
 
 let products=[
-{name:"سكر",price:1000,img:"https://images.unsplash.com/photo-1586201375761-83865001e31c"},
-{name:"أرز",price:67,img:"https://images.unsplash.com/photo-1586201375799-3f2c9e70a5e3"},
-{name:"زيت",price:850,img:"https://images.unsplash.com/photo-1604908176997-125f25cc6f3d"},
-{name:"مكرونة",price:300,img:"https://images.unsplash.com/photo-1617196037304-0d7d6871f5ed"}
+{name:"سكر",price:1000,img:"https://i.imgur.com/2DhmtJ4.jpg"},
+{name:"أرز",price:67,img:"https://i.imgur.com/Q8bKQpP.jpg"},
+{name:"زيت",price:850,img:"https://i.imgur.com/AvYJ6vR.jpg"},
+{name:"مكرونة",price:300,img:"https://i.imgur.com/ob0y6MR.jpg"},
+{name:"عدس",price:500,img:"https://i.imgur.com/f9J3K4F.jpg"},
+{name:"ملح",price:50,img:"https://i.imgur.com/Anu7P8P.jpg"}
 ]
 
 let cart={}
-let deliveryPrice=0
 
-function showProducts(){
+function showProducts(list=products){
 
 let html=""
 
-products.forEach((p,i)=>{
+list.forEach((p,i)=>{
 
 html+=`
 
@@ -316,7 +271,7 @@ html+=`
 <div class="qty">
 
 <button onclick="minus(${i})">-</button>
-<span id="qty${i}">0</span>
+<span id="q${i}">0</span>
 <button onclick="plus(${i})">+</button>
 
 </div>
@@ -327,6 +282,10 @@ html+=`
 
 })
 
+products.forEach((p,i)=>{
+if(!cart[i]) cart[i]={...p,qty:0}
+})
+
 document.getElementById("products").innerHTML=html
 
 }
@@ -335,78 +294,51 @@ showProducts()
 
 function plus(i){
 
-sound.play()
-if(navigator.vibrate) navigator.vibrate(80)
-
-showToast()
-
-if(!cart[i]) cart[i]={...products[i],qty:0}
+if(navigator.vibrate) navigator.vibrate(50)
 
 cart[i].qty++
 
-updateCart()
+document.getElementById("q"+i).innerText=cart[i].qty
+
+updateCount()
 
 }
 
 function minus(i){
 
-if(cart[i]){
+if(cart[i].qty>0){
 cart[i].qty--
-if(cart[i].qty<=0) delete cart[i]
 }
 
-updateCart()
+document.getElementById("q"+i).innerText=cart[i].qty
+
+updateCount()
 
 }
 
-function updateCart(){
+function updateCount(){
 
-let count=0
-
-products.forEach((p,i)=>{
-
-let q=cart[i]?cart[i].qty:0
-document.getElementById("qty"+i).innerText=q
-
-})
+let c=0
 
 for(let i in cart){
-count+=cart[i].qty
+c+=cart[i].qty
 }
 
-document.getElementById("cartCount").innerText=count
-
-}
-
-function searchProduct(){
-
-let text=document.getElementById("search").value
-
-let filtered=products.filter(p=>p.name.includes(text))
-
-let html=""
-
-filtered.forEach(p=>{
-html+=`<div class="product"><h4>${p.name}</h4><p>${p.price}</p></div>`
-})
-
-document.getElementById("products").innerHTML=html
+document.getElementById("count").innerText=c
 
 }
 
-function showToast(){
+function searchProduct(text){
 
-let t=document.getElementById("toast")
+let f=products.filter(p=>p.name.includes(text))
 
-t.style.display="block"
-
-setTimeout(()=>{t.style.display="none"},1200)
+showProducts(f)
 
 }
 
 function goLocation(){
 
-document.getElementById("shopPage").style.display="none"
+document.getElementById("shop").style.display="none"
 document.getElementById("locationPage").style.display="block"
 
 }
@@ -415,27 +347,29 @@ function openMaps(){
 
 window.open("https://www.google.com/maps","_blank")
 
-alert("افتح الخريطة واضغط على موقعك ثم اختر مشاركة وانسخ الرابط والصقه هنا")
+alert("حدد موقعك في الخريطة ثم انسخ الرابط والصقه هنا")
 
 }
+
+let delivery=0
 
 function goOrder(){
 
 let link=document.getElementById("locationLink").value
 
 if(link==""){
-alert("الصق رابط الموقع")
+alert("أدخل الموقع")
 return
 }
 
-let district=document.getElementById("district")
+let d=document.getElementById("district").value
 
-if(district.value==""){
+if(d==""){
 alert("اختر الحي")
 return
 }
 
-deliveryPrice=parseInt(district.value)
+delivery=parseInt(d)
 
 document.getElementById("locationPage").style.display="none"
 document.getElementById("orderPage").style.display="block"
@@ -445,19 +379,21 @@ let total=0
 
 for(let i in cart){
 
-let p=cart[i]
+if(cart[i].qty>0){
 
-html+=`<p>${p.name} × ${p.qty}</p>`
+html+=cart[i].name+" × "+cart[i].qty+"<br>"
 
-total+=p.price*p.qty
+total+=cart[i].price*cart[i].qty
 
 }
 
-total+=deliveryPrice
+}
 
-document.getElementById("orderItems").innerHTML=html
-document.getElementById("deliveryPrice").innerText=deliveryPrice
-document.getElementById("total").innerText=total
+total+=delivery
+
+document.getElementById("items").innerHTML=html
+document.getElementById("delivery").innerText=delivery
+document.getElementById("total").innerText=total+" جنيه"
 
 }
 
@@ -468,32 +404,49 @@ document.getElementById("paymentPage").style.display="block"
 
 }
 
-document.getElementById("paymentMethod").addEventListener("change",function(){
+document.getElementById("payment").onchange=function(){
 
 if(this.value=="online"){
-document.getElementById("onlineOptions").style.display="block"
+document.getElementById("wallet").style.display="block"
 }else{
-document.getElementById("onlineOptions").style.display="none"
+document.getElementById("wallet").style.display="none"
 }
 
-})
+}
 
 function confirmOrder(){
 
-let pay=document.getElementById("paymentMethod").value
-let wallet=document.getElementById("wallet").value
+let pay=document.getElementById("payment").value
 
 if(pay==""){
-alert("اختر طريقة الدفع")
+alert("اختر الدفع")
 return
 }
 
-if(pay=="online" && wallet==""){
-alert("اختر المحفظة")
-return
+let wallet=document.getElementById("wallet").value
+
+let user=JSON.parse(localStorage.getItem("user"))
+
+let order={
+name:user.name,
+phone:user.phone,
+cart:cart,
+delivery:delivery,
+location:document.getElementById("locationLink").value,
+payment:pay,
+wallet:wallet,
+time:new Date().toLocaleString()
 }
 
-alert("تم إرسال الطلب بنجاح")
+let orders=JSON.parse(localStorage.getItem("orders")||"[]")
+
+orders.push(order)
+
+localStorage.setItem("orders",JSON.stringify(orders))
+
+alert("تم إرسال الطلب")
+
+location.reload()
 
 }
 
