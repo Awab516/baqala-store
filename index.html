@@ -33,9 +33,20 @@ button{
 background:#2ecc71;
 border:none;
 color:white;
-padding:10px 20px;
+padding:8px 14px;
 border-radius:8px;
 font-size:16px;
+}
+
+.qty{
+display:flex;
+gap:10px;
+align-items:center;
+margin-top:10px;
+}
+
+.qty button{
+background:#3498db;
 }
 
 .cart-btn{
@@ -64,23 +75,18 @@ padding:20px;
 overflow:auto;
 }
 
-.qty{
-display:flex;
-gap:10px;
-align-items:center;
-}
-
-.qty button{
-padding:5px 12px;
-font-size:18px;
-}
-
 input{
 width:100%;
 padding:10px;
 margin:10px 0;
 border-radius:6px;
 border:1px solid #ccc;
+}
+
+.warn{
+color:red;
+font-size:14px;
+margin-top:5px;
 }
 
 </style>
@@ -119,10 +125,10 @@ border:1px solid #ccc;
 <script>
 
 let products=[
-{name:"سكر",price:1000},
-{name:"أرز",price:67},
-{name:"زيت",price:850},
-{name:"مكرونة",price:300}
+{name:"سكر",price:1000,stock:10},
+{name:"أرز",price:67,stock:3},
+{name:"زيت",price:850,stock:7},
+{name:"مكرونة",price:300,stock:2}
 ]
 
 let cart={}
@@ -133,6 +139,12 @@ let html=""
 
 products.forEach((p,i)=>{
 
+let warn=""
+
+if(p.stock<=3){
+warn="<div class='warn'>⚠ الكمية قليلة</div>"
+}
+
 html+=`
 <div class="product">
 
@@ -140,9 +152,17 @@ html+=`
 
 <p>${p.price} جنيه</p>
 
-<button onclick="addCart(${i})">
-أضف للسلة
-</button>
+${warn}
+
+<div class="qty">
+
+<button onclick="minus(${i})">➖</button>
+
+<span id="qty${i}">0</span>
+
+<button onclick="plus(${i})">➕</button>
+
+</div>
 
 </div>
 `
@@ -155,31 +175,32 @@ document.getElementById("products").innerHTML=html
 
 showProducts()
 
-function addCart(i){
-
-if(!cart[i]){
-cart[i]={...products[i],qty:1}
-}else{
-cart[i].qty++
-}
-
-updateCart()
-
-}
-
 function plus(i){
 
+if(!cart[i]){
+cart[i]={...products[i],qty:0}
+}
+
+if(cart[i].qty < products[i].stock){
+
 cart[i].qty++
+
+}
+
 updateCart()
 
 }
 
 function minus(i){
 
+if(cart[i]){
+
 cart[i].qty--
 
 if(cart[i].qty<=0){
 delete cart[i]
+}
+
 }
 
 updateCart()
@@ -192,6 +213,15 @@ let count=0
 let total=0
 let html=""
 
+products.forEach((p,i)=>{
+
+let q=cart[i]?cart[i].qty:0
+
+let el=document.getElementById("qty"+i)
+if(el) el.innerText=q
+
+})
+
 for(let i in cart){
 
 let p=cart[i]
@@ -201,24 +231,9 @@ count+=p.qty
 total+=p.price*p.qty
 
 html+=`
-<div>
-
-<b>${p.name}</b>
-
-<div class="qty">
-
-<button onclick="minus(${i})">➖</button>
-
-${p.qty}
-
-<button onclick="plus(${i})">➕</button>
-
-</div>
-
-<p>${p.price*p.qty} جنيه</p>
-
-</div>
-<hr>
+<p>
+${p.name} × ${p.qty}
+</p>
 `
 
 }
