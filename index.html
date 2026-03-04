@@ -187,7 +187,7 @@ width:200px;
 </div>
 
 <div class="search">
-<input id="search" placeholder="ابحث عن منتج..." onkeyup="searchProduct()">
+<input id="search" placeholder="ابحث..." onkeyup="searchProduct()">
 </div>
 
 </div>
@@ -201,7 +201,7 @@ width:200px;
 
 <div id="locationPage" class="page">
 
-<div class="header">إرسال موقعك</div>
+<div class="header">إرسال الموقع</div>
 
 <div style="padding:20px">
 
@@ -246,7 +246,43 @@ width:200px;
 رجوع
 </button>
 
-<button onclick="sendOrder()" style="width:100%;padding:12px;background:#27ae60;color:white;border:none;border-radius:8px">
+<button onclick="goPayment()" style="width:100%;padding:12px;background:#27ae60;color:white;border:none;border-radius:8px">
+التالي
+</button>
+
+</div>
+
+</div>
+
+
+<div id="paymentPage" class="page">
+
+<div class="header">طريقة الدفع</div>
+
+<div style="padding:20px">
+
+<select id="paymentMethod" style="width:100%;padding:12px">
+
+<option value="">اختر طريقة الدفع</option>
+<option value="cash">الدفع عند الاستلام</option>
+<option value="online">الدفع أونلاين</option>
+
+</select>
+
+<div id="onlineOptions" style="display:none;margin-top:15px">
+
+<select id="wallet" style="width:100%;padding:12px">
+
+<option value="">اختر المحفظة</option>
+<option value="bankak">بنكك</option>
+<option value="mycash">ماي كاشي</option>
+<option value="okcash">أوكاشي</option>
+
+</select>
+
+</div>
+
+<button onclick="confirmOrder()" style="margin-top:20px;width:100%;padding:12px;background:#27ae60;color:white;border:none;border-radius:8px">
 تأكيد الطلب
 </button>
 
@@ -447,11 +483,6 @@ document.getElementById("locationPage").style.display="block"
 
 function getLocation(){
 
-if(!navigator.geolocation){
-alert("الموقع غير مدعوم")
-return
-}
-
 navigator.geolocation.getCurrentPosition(function(pos){
 
 locationData={
@@ -461,8 +492,6 @@ lng:pos.coords.longitude
 
 document.getElementById("locationStatus").innerText="تم تحديد الموقع"
 
-},function(){
-alert("يجب السماح للموقع من المتصفح")
 })
 
 }
@@ -516,7 +545,37 @@ document.getElementById("shopPage").style.display="block"
 
 }
 
-function sendOrder(){
+function goPayment(){
+
+document.getElementById("orderPage").style.display="none"
+document.getElementById("paymentPage").style.display="block"
+
+}
+
+document.getElementById("paymentMethod").addEventListener("change",function(){
+
+if(this.value=="online"){
+document.getElementById("onlineOptions").style.display="block"
+}else{
+document.getElementById("onlineOptions").style.display="none"
+}
+
+})
+
+function confirmOrder(){
+
+let pay=document.getElementById("paymentMethod").value
+let wallet=document.getElementById("wallet").value
+
+if(pay==""){
+alert("اختر طريقة الدفع")
+return
+}
+
+if(pay=="online" && wallet==""){
+alert("اختر المحفظة")
+return
+}
 
 alert("تم إرسال الطلب")
 
