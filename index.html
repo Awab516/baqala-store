@@ -160,6 +160,8 @@ let products=[
 
 let cart={}
 
+let sound=new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_2b5f8e0c3a.mp3")
+
 function showProducts(){
 
 let html=""
@@ -205,6 +207,8 @@ document.getElementById("products").innerHTML=html
 showProducts()
 
 function plus(i){
+
+sound.play()
 
 if(!cart[i]){
 cart[i]={...products[i],qty:0}
@@ -291,7 +295,7 @@ let filtered=products.filter(p=>p.name.includes(text))
 
 let html=""
 
-filtered.forEach((p,i)=>{
+filtered.forEach((p)=>{
 
 html+=`
 <div class="product">
