@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>إدارة الطلبات</title>
+<title>لوحة إدارة الطلبات</title>
 
 <style>
 
 body{
 font-family:Arial;
-background:#f2f2f2;
 margin:0;
+background:#f2f2f2;
 direction:rtl;
 }
 
@@ -19,126 +19,109 @@ background:#27ae60;
 color:white;
 padding:15px;
 text-align:center;
-font-size:20px;
+font-size:22px;
+}
+
+.orders{
+padding:10px;
 }
 
 .order{
 background:white;
-margin:10px;
 padding:15px;
 border-radius:10px;
+margin-bottom:10px;
 }
 
 button{
-padding:10px;
+padding:8px 12px;
 border:none;
 border-radius:6px;
 margin-top:5px;
-cursor:pointer;
 }
 
-.map{
+.call{
 background:#3498db;
 color:white;
 }
 
-.delete{
-background:#e74c3c;
+.map{
+background:#27ae60;
 color:white;
 }
 
 </style>
+
 </head>
 
 <body>
 
-<div class="header">
-لوحة إدارة الطلبات
-</div>
+<div class="header">لوحة إدارة الطلبات</div>
 
-<div id="orders"></div>
+<div class="orders" id="orders"></div>
 
-<script>
+<script type="module">
 
-let orders=JSON.parse(localStorage.getItem("orders")||"[]")
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
-function showOrders(){
+const firebaseConfig = {
+apiKey: "AIzaSyANFomLC3CBPdB_3FS5ylbw1XHqHqFai3c",
+authDomain: "awab-store-f4428.firebaseapp.com",
+projectId: "awab-store-f4428",
+storageBucket: "awab-store-f4428.firebasestorage.app",
+messagingSenderId: "385135199201",
+appId: "1:385135199201:web:10c3ec0ae39f5fb0a3c8a0"
+};
 
-let html=""
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-if(orders.length==0){
-html="<p style='padding:20px'>لا يوجد طلبات</p>"
-}
+let container=document.getElementById("orders")
 
-orders.forEach((o,i)=>{
+onSnapshot(collection(db,"orders"),(snapshot)=>{
 
-let items=""
+container.innerHTML=""
 
-for(let k in o.cart){
+snapshot.forEach(doc=>{
 
-if(o.cart[k].qty>0){
+let o=doc.data()
 
-items+=o.cart[k].name+" × "+o.cart[k].qty+"<br>"
-
-}
-
-}
-
-html+=`
+let html=`
 
 <div class="order">
 
-<b>الاسم:</b> ${o.name}<br>
-<b>الرقم:</b> ${o.phone}<br>
+<h3>${o.customerName}</h3>
 
-<hr>
+<p>📞 ${o.phone}</p>
 
-<b>الطلبات:</b><br>
-${items}
+<p>💰 ${o.total} جنيه</p>
 
-<hr>
+<p>🚚 توصيل: ${o.delivery}</p>
 
-<b>التوصيل:</b> ${o.delivery} جنيه<br>
-<b>الدفع:</b> ${o.payment}<br>
-<b>الوقت:</b> ${o.time}
+<p>💳 الدفع: ${o.payment}</p>
 
-<br><br>
+<button class="call" onclick="call('${o.phone}')">اتصال</button>
 
-<button class="map" onclick="openMap('${o.location}')">
-فتح الموقع
-</button>
-
-<button class="delete" onclick="deleteOrder(${i})">
-حذف الطلب
-</button>
+<button class="map" onclick="map('${o.location}')">فتح الموقع</button>
 
 </div>
 
 `
 
+container.innerHTML+=html
+
 })
 
-document.getElementById("orders").innerHTML=html
+})
 
+window.call=function(phone){
+window.open("tel:"+phone)
 }
 
-function openMap(link){
-
+window.map=function(link){
 window.open(link)
-
 }
-
-function deleteOrder(i){
-
-orders.splice(i,1)
-
-localStorage.setItem("orders",JSON.stringify(orders))
-
-showOrders()
-
-}
-
-showOrders()
 
 </script>
 
