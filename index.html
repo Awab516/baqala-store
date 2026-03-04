@@ -33,7 +33,6 @@ display:flex;
 align-items:center;
 justify-content:center;
 font-weight:bold;
-cursor:pointer;
 }
 
 .topbar{
@@ -106,30 +105,7 @@ border-radius:10px;
 font-size:18px;
 }
 
-.toast{
-position:fixed;
-bottom:80px;
-left:50%;
-transform:translateX(-50%);
-background:#27ae60;
-color:white;
-padding:10px 20px;
-border-radius:8px;
-display:none;
-}
-
 .page{
-display:none;
-}
-
-.profileBox{
-position:fixed;
-top:70px;
-left:10px;
-background:white;
-padding:15px;
-border-radius:10px;
-box-shadow:0 2px 10px rgba(0,0,0,0.2);
 display:none;
 }
 
@@ -138,33 +114,14 @@ display:none;
 
 <body>
 
-<div id="registerPage">
 
-<div class="header">أدخل بياناتك</div>
-
-<div style="padding:20px">
-
-<input id="userName" placeholder="اسمك" style="width:100%;padding:12px;margin-bottom:10px">
-
-<input id="userPhone" placeholder="رقمك" style="width:100%;padding:12px">
-
-<button onclick="saveUser()" style="width:100%;margin-top:10px;padding:12px;background:#27ae60;color:white;border:none;border-radius:8px">
-دخول المتجر
-</button>
-
-</div>
-
-</div>
-
-
-
-<div id="shopPage" class="page">
+<div id="shopPage">
 
 <div class="header">
 
 <div>متجر البقالة</div>
 
-<div class="profile" onclick="toggleProfile()" id="profileCircle">A</div>
+<div class="profile" id="profileCircle">A</div>
 
 </div>
 
@@ -175,14 +132,38 @@ display:none;
 </div>
 
 <div class="search">
-<input id="search" placeholder="ابحث عن منتج..." onkeyup="searchProduct()">
+<input id="search" placeholder="ابحث..." onkeyup="searchProduct()">
 </div>
 
 </div>
 
 <div class="products" id="products"></div>
 
-<button class="nextBtn" onclick="goNext()">التالي</button>
+<button class="nextBtn" onclick="goLocation()">التالي</button>
+
+</div>
+
+
+
+<div id="locationPage" class="page">
+
+<div class="header">إرسال موقعك</div>
+
+<div style="padding:20px">
+
+<p>يرجى إرسال موقعك لإكمال الطلب</p>
+
+<button onclick="getLocation()" style="width:100%;padding:12px;background:#27ae60;color:white;border:none;border-radius:8px">
+إرسال موقعي
+</button>
+
+<div id="locationStatus" style="margin-top:10px"></div>
+
+<button onclick="goOrder()" style="margin-top:20px;width:100%;padding:12px;background:#3498db;color:white;border:none;border-radius:8px">
+التالي
+</button>
+
+</div>
 
 </div>
 
@@ -198,11 +179,11 @@ display:none;
 
 <h3>الإجمالي: <span id="total"></span> جنيه</h3>
 
-<button onclick="goBack()" style="padding:12px;width:100%;background:#777;color:white;border:none;border-radius:8px;margin-bottom:10px">
+<button onclick="goBack()" style="width:100%;padding:12px;background:#777;color:white;border:none;border-radius:8px;margin-bottom:10px">
 رجوع
 </button>
 
-<button onclick="sendOrder()" style="padding:12px;width:100%;background:#27ae60;color:white;border:none;border-radius:8px">
+<button onclick="sendOrder()" style="width:100%;padding:12px;background:#27ae60;color:white;border:none;border-radius:8px">
 تأكيد الطلب
 </button>
 
@@ -211,56 +192,15 @@ display:none;
 </div>
 
 
-<div id="profileBox" class="profileBox">
-
-<div id="profileName"></div>
-<div id="profilePhone"></div>
-
-<button onclick="logout()" style="margin-top:10px;background:#e74c3c;color:white;border:none;padding:8px;border-radius:6px">
-تغيير المستخدم
-</button>
-
-</div>
-
-
-<div id="toast" class="toast">تمت الإضافة للسلة</div>
-
 <script>
 
-let sound=new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_2b5f8e0c3a.mp3")
-
-let user=localStorage.getItem("user")
+let user=JSON.parse(localStorage.getItem("user"))
 
 if(user){
-
-user=JSON.parse(user)
-
-document.getElementById("registerPage").style.display="none"
-
-document.getElementById("shopPage").style.display="block"
-
 document.getElementById("profileCircle").innerText=user.name.charAt(0)
-
-document.getElementById("profileName").innerText="الاسم: "+user.name
-document.getElementById("profilePhone").innerText="الرقم: "+user.phone
-
 }
 
-function saveUser(){
-
-let name=document.getElementById("userName").value
-let phone=document.getElementById("userPhone").value
-
-if(!name || !phone){
-alert("اكتب الاسم والرقم")
-return
-}
-
-localStorage.setItem("user",JSON.stringify({name,phone}))
-
-location.reload()
-
-}
+let locationData=null
 
 
 let products=[
@@ -310,13 +250,8 @@ document.getElementById("products").innerHTML=html
 
 showProducts()
 
+
 function plus(i){
-
-sound.play()
-
-if(navigator.vibrate) navigator.vibrate(80)
-
-showToast()
 
 if(!cart[i]) cart[i]={...products[i],qty:0}
 
@@ -364,6 +299,7 @@ document.getElementById("cartCount").innerText=count
 
 }
 
+
 function searchProduct(){
 
 let text=document.getElementById("search").value
@@ -374,19 +310,43 @@ showProducts(filtered)
 
 }
 
-function showToast(){
 
-let t=document.getElementById("toast")
+function goLocation(){
 
-t.style.display="block"
+document.getElementById("shopPage").style.display="none"
 
-setTimeout(()=>{t.style.display="none"},1200)
+document.getElementById("locationPage").style.display="block"
 
 }
 
-function goNext(){
 
-document.getElementById("shopPage").style.display="none"
+function getLocation(){
+
+navigator.geolocation.getCurrentPosition(function(pos){
+
+locationData={
+lat:pos.coords.latitude,
+lng:pos.coords.longitude
+}
+
+document.getElementById("locationStatus").innerText="تم تحديد الموقع"
+
+})
+
+}
+
+
+function goOrder(){
+
+if(!locationData){
+
+alert("يجب إرسال الموقع أولاً")
+
+return
+
+}
+
+document.getElementById("locationPage").style.display="none"
 
 document.getElementById("orderPage").style.display="block"
 
@@ -408,6 +368,7 @@ document.getElementById("total").innerText=total
 
 }
 
+
 function goBack(){
 
 document.getElementById("orderPage").style.display="none"
@@ -416,25 +377,10 @@ document.getElementById("shopPage").style.display="block"
 
 }
 
+
 function sendOrder(){
 
-alert("تم إرسال الطلب")
-
-}
-
-function toggleProfile(){
-
-let box=document.getElementById("profileBox")
-
-box.style.display = box.style.display=="block" ? "none" : "block"
-
-}
-
-function logout(){
-
-localStorage.removeItem("user")
-
-location.reload()
+alert("تم إرسال الطلب مع الموقع")
 
 }
 
